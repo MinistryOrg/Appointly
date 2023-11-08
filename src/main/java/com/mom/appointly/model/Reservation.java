@@ -20,6 +20,6 @@ public class Reservation {
     @JoinColumn(name = "shop_id", referencedColumnName = "id")
     private Shop shop;
     @ManyToOne
-    @JoinColumn(name = "user_id") // to connect with user
-    private User user;
+    @JoinColumn(name = "appUser_id") // to connect with user
+    private User appUser;
 }

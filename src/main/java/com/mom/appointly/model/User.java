@@ -10,7 +10,7 @@ import java.util.List;
 @AllArgsConstructor
 @Getter @Setter
 @Entity
-@Table
+@Table(name = "appUser")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -23,7 +23,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "appUser")
     private List<Reservation> reservations;
 
     // if the user is admin to find which shop is owner

@@ -18,7 +18,7 @@ public class Shop {
     private String type;
 
     @OneToOne
-    private User user;
+    private User appUser;
     @OneToOne
     private Reservation reservation;
 
