@@ -4,7 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.List;
+import java.sql.Time;
+import java.util.Date;
 
 @Builder
 @NoArgsConstructor
@@ -13,11 +14,11 @@ import java.util.List;
 @Setter
 @Entity
 @Table
-public class Shop {
+public class Appointment {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private String name;
-    private String type;
+    private Date date;
+    private Time time;
 
 }

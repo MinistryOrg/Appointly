@@ -9,14 +9,15 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter @Setter
 @Entity
-@Table(name = "appUser")
-public class User implements UserDetails {
+@Table
+public class UserEntity implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -27,14 +28,6 @@ public class User implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     private Role role;
-
-    @OneToMany(mappedBy = "appUser")
-    private List<Reservation> reservations;
-
-    // if the user is admin to find which shop is owner
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "shop_id", referencedColumnName = "id")
-    private Shop shop;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

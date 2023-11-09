@@ -33,7 +33,7 @@ public class SecurityConfig {
                                 .requestMatchers("/api/v1/admin/**")
                                 .hasAnyAuthority(String.valueOf(Role.ADMIN))
                                 .requestMatchers("/api/v1/user/**")
-                                .hasAnyAuthority(String.valueOf(Role.USER))
+                                .hasAnyAuthority(String.valueOf(Role.USER), String.valueOf(Role.ADMIN))
                                 .anyRequest()
                                 .authenticated()
                 )

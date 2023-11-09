@@ -5,7 +5,7 @@ import com.mom.appointly.auth.model.AuthenticationResponse;
 import com.mom.appointly.auth.model.ChangePasswordRequest;
 import com.mom.appointly.auth.model.RegisterRequest;
 import com.mom.appointly.model.Role;
-import com.mom.appointly.model.User;
+import com.mom.appointly.model.UserEntity;
 import com.mom.appointly.repository.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,7 +24,7 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
 
     public AuthenticationResponse register(RegisterRequest request) {
-        var user = User.builder()
+        var user = UserEntity.builder()
                 .firstname(request.getFirstname())
                 .lastname(request.getLastname())
                 .email(request.getEmail())
@@ -54,7 +54,7 @@ public class AuthenticationService {
     }
 
     public String changePassword(ChangePasswordRequest changePasswordRequest, Principal connectedUser) {
-        var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
+        var user = (UserEntity) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
         // check if the users type the correct password
         if(!passwordEncoder.matches(changePasswordRequest.getOldPassword(), user.getPassword())){
             return "Wrong password";
