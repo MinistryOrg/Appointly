@@ -1,13 +1,7 @@
 package com.mom.appointly.service;
 
-import com.mom.appointly.model.Appointment;
-import com.mom.appointly.model.CustomerData;
-import com.mom.appointly.model.Shop;
-import com.mom.appointly.model.UserEntity;
-import com.mom.appointly.repository.AppointmentRepo;
-import com.mom.appointly.repository.CustomerDataRepo;
-import com.mom.appointly.repository.ShopRepo;
-import com.mom.appointly.repository.UserRepo;
+import com.mom.appointly.model.*;
+import com.mom.appointly.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -23,12 +17,17 @@ public class AppointlyService {
     private final ShopRepo shopRepo;
     private final AppointmentRepo appointmentRepo;
     private final CustomerDataRepo customerDataRepo;
+    private final AdminDataRepo adminDataRepo;
+
     public List<UserEntity> getUsers(){
         return userRepo.findAll();
     }
 
-    public Optional<CustomerData> getCustomerData(String email) {
-        return customerDataRepo.findByUserEntityEmail(email);
+    public Optional<CustomerData> getCustomerData() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Optional<AdminData> adminData = adminDataRepo.findByUserEntityEmail(email);
+        return customerDataRepo
+                .findByShopName(adminData.get().getShops().get(0).getName());// add the mapped by to get the appointments
     }
 
     public void makeAppointment(String shopName, Appointment appointment) {
@@ -36,17 +35,18 @@ public class AppointlyService {
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         UserEntity userEntity = userRepo.findByEmail(userEmail).get();
         Shop shop = shopRepo.findByName(shopName).get();
-
-        if(customerDataRepo.findByUserEntityAndShop(userEntity,shop).isPresent()){
+        Optional<CustomerData> customerData = customerDataRepo.findByUserEntityAndShop(userEntity,shop);
+        if(customerData.isPresent()){ // check if the user already have make an appointment in this shop to add it to the list
             appointmentRepo.save(appointment);
-            System.out.println("Already exist in the database so i need to add the data to the list");
+            customerData.get().getAppointments().add(appointment);
+            customerDataRepo.save(customerData.get());
         } else {
             List<Appointment> appointments = new ArrayList<>();
             appointments.add(appointment);
             appointmentRepo.save(appointment);
-            CustomerData customerData = new CustomerData(userEntity, shop, appointments);
-            customerDataRepo.save(customerData);
+            customerDataRepo.save(new CustomerData(userEntity, shop, appointments));
         }
+
     }
 
     public void editAppointment(Appointment appointment) {
@@ -60,7 +60,19 @@ public class AppointlyService {
     }
 
     public void addShop(Shop shop) {
-
-        shopRepo.save(shop);
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserEntity userEntity = userRepo.findByEmail(userEmail).get();
+        Optional<AdminData> adminData = adminDataRepo.findByUserEntity(userEntity);
+        if(adminData.isPresent()){
+            adminData.get().getShops().add(shop);
+            shopRepo.save(shop);
+            adminDataRepo.save(adminData.get());
+        }else {
+            List<Shop> shops = new ArrayList<>();
+            shopRepo.save(shop);
+            shops.add(shop);
+            adminDataRepo.save(new AdminData(null, userEntity, shops));
+        }
+        // check if already a same name shop exist
     }
 }

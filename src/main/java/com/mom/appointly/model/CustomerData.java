@@ -27,7 +27,7 @@ public class CustomerData {
     private Shop shop;
 
     @OneToMany
-    @JoinColumn(name = "appointment_id")
+    @JoinColumn(name = "fk_cd_id")
     private List<Appointment> appointments;
 
     public CustomerData(UserEntity userEntity, Shop shop, List<Appointment> appointment) {

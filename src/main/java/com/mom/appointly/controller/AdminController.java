@@ -1,11 +1,11 @@
 package com.mom.appointly.controller;
 
-import com.mom.appointly.model.Shop;
-import com.mom.appointly.model.UserEntity;
+import com.mom.appointly.model.*;
 import com.mom.appointly.service.AppointlyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -14,8 +14,8 @@ import java.util.Optional;
 public class AdminController {
     private final AppointlyService appointlyService;
     @GetMapping("/users")
-    public Optional<UserEntity> getUsers(@RequestParam String email){
-         
+    public Optional<CustomerData> getUsers(){
+       return appointlyService.getCustomerData();
     }
     @PostMapping("/addShop")
     public void addShop(@RequestBody Shop shop){

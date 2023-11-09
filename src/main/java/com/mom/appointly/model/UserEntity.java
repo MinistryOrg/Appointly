@@ -29,6 +29,16 @@ public class UserEntity implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @OneToMany(cascade = CascadeType.ALL,
+            mappedBy = "userEntity")
+    @JsonIgnore
+    private List<CustomerData> customerData;
+
+    @OneToMany(cascade = CascadeType.ALL,
+            mappedBy = "userEntity")
+    @JsonIgnore
+    private List<AdminData> adminData;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));

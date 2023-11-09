@@ -1,6 +1,5 @@
 package com.mom.appointly.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -13,13 +12,18 @@ import java.util.List;
 @Setter
 @Entity
 @Table
-public class Shop {
+public class AdminData {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id", nullable = false)
     private Long id;
-    private String name;
-    private String type;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "shop")
-    @JsonIgnore
-    private List<CustomerData> customerData;
+
+    @ManyToOne
+    @JoinColumn(name = "user_entity_id")
+    private UserEntity userEntity;
+
+    @OneToMany
+    @JoinColumn(name = "fk_ad_id")
+    private List<Shop> shops;
+
 }
