@@ -30,29 +30,57 @@ public class AppointlyService {
                 .findByShopName(adminData.get().getShops().get(0).getName());// add the mapped by to get the appointments
     }
 
-    public void makeAppointment(String shopName, Appointment appointment) {
+    public CustomerData makeAppointment(String shopName, Appointment appointment) {
         // checks if the user already make an appointment in the specific shop
-        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName(); // get the email of the user that is connected
         UserEntity userEntity = userRepo.findByEmail(userEmail).get();
         Shop shop = shopRepo.findByName(shopName).get();
         Optional<CustomerData> customerData = customerDataRepo.findByUserEntityAndShop(userEntity,shop);
+
         if(customerData.isPresent()){ // check if the user already have make an appointment in this shop to add it to the list
+            appointment.setCustomerData(customerData.get());
             appointmentRepo.save(appointment);
             customerData.get().getAppointments().add(appointment);
-            customerDataRepo.save(customerData.get());
+            return customerDataRepo.save(customerData.get());
         } else {
             List<Appointment> appointments = new ArrayList<>();
             appointments.add(appointment);
+            CustomerData customer = customerDataRepo.save(new CustomerData(userEntity, shop, appointments));
+            appointment.setCustomerData(customer);
             appointmentRepo.save(appointment);
-            customerDataRepo.save(new CustomerData(userEntity, shop, appointments));
+            return customer;
         }
 
     }
+    // TODO : check if the appointment id is the same with the customer id
+    //  that is store to the customer data, so the user to not change other users appointment
+    //  if the role is admin and the owner of the shop to be able to change for all the users
+    public Appointment editAppointment(Appointment appointment) {
+        Optional<Appointment> optionalAppointment = appointmentRepo.findById(appointment.getId());
 
-    public void editAppointment(Appointment appointment) {
+        if(optionalAppointment.isPresent()){
+            return appointmentRepo.save(appointment);
+        }
+
+        return null;
     }
 
     public void cancelAppointment(Appointment appointment) {
+        Optional<Appointment> appointmentOptional = appointmentRepo.findById(appointment.getId());
+
+        if (appointmentOptional.isPresent()) {
+            Appointment canceledAppointment = appointmentOptional.get();
+            CustomerData customerData = canceledAppointment.getCustomerData();
+            // Remove the appointment from the  list of appointments
+            customerData.getAppointments().remove(canceledAppointment);
+            // Set null the customer_data from the canceled appointment to be able to delete
+            canceledAppointment.setCustomerData(null);
+            // Check if the last appointment for the customer_data
+            if (customerData.getAppointments().isEmpty()) {
+                customerDataRepo.delete(customerData);
+            }
+            appointmentRepo.delete(canceledAppointment);
+        }
     }
 
     public Optional<Appointment> getAppointments() {

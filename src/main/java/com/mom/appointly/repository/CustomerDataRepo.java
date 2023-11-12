@@ -1,5 +1,6 @@
 package com.mom.appointly.repository;
 
+import com.mom.appointly.model.Appointment;
 import com.mom.appointly.model.CustomerData;
 import com.mom.appointly.model.Shop;
 import com.mom.appointly.model.UserEntity;
@@ -15,5 +16,4 @@ public interface CustomerDataRepo extends JpaRepository<CustomerData, Long> {
     Optional<CustomerData> findByUserEntityId(Long id);
     Optional<CustomerData> findByUserEntityEmail(String email);
     Optional<CustomerData> findByUserEntityAndShop(UserEntity userEntity, Shop shop);
-
 }

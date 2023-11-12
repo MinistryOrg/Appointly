@@ -28,11 +28,11 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req ->
-                        req.requestMatchers("/api/v1/auth/**")
+                        req.requestMatchers("/api/v1/auth/appointly/**")
                                 .permitAll()
-                                .requestMatchers("/api/v1/admin/**")
+                                .requestMatchers("/api/v1/appointly/admin/**")
                                 .hasAnyAuthority(String.valueOf(Role.ADMIN))
-                                .requestMatchers("/api/v1/user/**")
+                                .requestMatchers("/api/v1/appointly/user/**")
                                 .hasAnyAuthority(String.valueOf(Role.USER), String.valueOf(Role.ADMIN))
                                 .anyRequest()
                                 .authenticated()

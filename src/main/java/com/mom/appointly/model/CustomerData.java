@@ -26,8 +26,7 @@ public class CustomerData {
     @JoinColumn(name = "shop_id")
     private Shop shop;
 
-    @OneToMany
-    @JoinColumn(name = "fk_cd_id")
+    @OneToMany(mappedBy = "customerData",  cascade = CascadeType.ALL)
     private List<Appointment> appointments;
 
     public CustomerData(UserEntity userEntity, Shop shop, List<Appointment> appointment) {
