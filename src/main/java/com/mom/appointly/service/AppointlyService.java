@@ -42,7 +42,7 @@ public class AppointlyService {
             appointmentRepo.save(appointment);
             customerData.get().getAppointments().add(appointment);
             return customerDataRepo.save(customerData.get());
-        } else {
+        } else { // if is the first appointment of the user
             List<Appointment> appointments = new ArrayList<>();
             appointments.add(appointment);
             CustomerData customer = customerDataRepo.save(new CustomerData(userEntity, shop, appointments));
@@ -50,7 +50,6 @@ public class AppointlyService {
             appointmentRepo.save(appointment);
             return customer;
         }
-
     }
     // TODO : check if the appointment id is the same with the customer id
     //  that is store to the customer data, so the user to not change other users appointment
@@ -91,11 +90,11 @@ public class AppointlyService {
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         UserEntity userEntity = userRepo.findByEmail(userEmail).get();
         Optional<AdminData> adminData = adminDataRepo.findByUserEntity(userEntity);
-        if(adminData.isPresent()){
+        if(adminData.isPresent()){ // if the admin already have a shop in the app add it the new one to the list
             adminData.get().getShops().add(shop);
             shopRepo.save(shop);
             adminDataRepo.save(adminData.get());
-        }else {
+        }else { // if is the first shop that the admin create a new AdminData to the database
             List<Shop> shops = new ArrayList<>();
             shopRepo.save(shop);
             shops.add(shop);
