@@ -18,7 +18,7 @@ public class AppointlyService {
     private final CustomerDataRepo customerDataRepo;
     private final AdminDataRepo adminDataRepo;
 
-    public List<UserEntity> getUsers(){
+    public List<UserEntity> getUsers() {
         return userRepo.findAll();
     }
 
@@ -34,14 +34,14 @@ public class AppointlyService {
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName(); // get the email of the user that is connected
         UserEntity userEntity = userRepo.findByEmail(userEmail).get();
         Shop shop = shopRepo.findByName(shopName).get();
-        Optional<CustomerData> customerData = customerDataRepo.findByUserEntityAndShop(userEntity,shop);
+        Optional<CustomerData> customerData = customerDataRepo.findByUserEntityAndShop(userEntity, shop);
 
-        if(customerData.isPresent()){ // check if the user already have make an appointment in this shop to add it to the list
+        if (customerData.isPresent() && appointmentRepo.findAppointmentByDateAndTime(appointment.getDate(), appointment.getTime()).isEmpty()) { // check if the user already have make an appointment in this shop to add it to the list
             appointment.setCustomerData(customerData.get());
             appointmentRepo.save(appointment);
             customerData.get().getAppointments().add(appointment);
             return customerDataRepo.save(customerData.get());
-        } else { // if is the first appointment of the user
+        } else if(appointmentRepo.findAppointmentByDateAndTime(appointment.getDate(), appointment.getTime()).isEmpty()){ // if is the first appointment of the user
             List<Appointment> appointments = new ArrayList<>();
             appointments.add(appointment);
             CustomerData customer = customerDataRepo.save(new CustomerData(userEntity, shop, appointments));
@@ -49,18 +49,21 @@ public class AppointlyService {
             appointmentRepo.save(appointment);
             return customer;
         }
+        throw new RuntimeException(); // it means the appointment is already exist and returns 403 forbidden
     }
+
+
     // TODO : check if the appointment id is the same with the customer id
     //  that is store to the customer data, so the user to not change other users appointment
     //  if the role is admin and the owner of the shop to be able to change for all the users
     public Appointment editAppointment(Appointment appointment) {
         Optional<Appointment> optionalAppointment = appointmentRepo.findById(appointment.getId());
 
-        if(optionalAppointment.isPresent()){
+        if (optionalAppointment.isPresent()) {
             return appointmentRepo.save(appointment);
         }
 
-        return null;
+        throw new RuntimeException(); // appointment doesn't exit for edit and returns 403 forbidden
     }
 
     public void cancelAppointment(Appointment appointment) {
@@ -89,11 +92,11 @@ public class AppointlyService {
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         UserEntity userEntity = userRepo.findByEmail(userEmail).get();
         Optional<AdminData> adminData = adminDataRepo.findByUserEntity(userEntity);
-        if(adminData.isPresent()){ // if the admin already have a shop in the app add it the new one to the list
+        if (adminData.isPresent()) { // if the admin already have a shop in the app add it the new one to the list
             adminData.get().getShops().add(shop);
             shopRepo.save(shop);
             adminDataRepo.save(adminData.get());
-        }else { // if is the first shop that the admin create a new AdminData to the database
+        } else { // if is the first shop that the admin create a new AdminData to the database
             List<Shop> shops = new ArrayList<>();
             shopRepo.save(shop);
             shops.add(shop);
@@ -105,14 +108,14 @@ public class AppointlyService {
     public Object getDates(String shopName) {
         Optional<CustomerData> customerData = customerDataRepo.findByShopName(shopName);
         Map<Date, List<Time>> datesAndTime = new HashMap<>();
-        if(customerData.isPresent()){
+        if (customerData.isPresent()) {
             for (Appointment appointment : customerData.get().getAppointments()) {
-                if(datesAndTime.containsKey(appointment.getDate())){
+                if (datesAndTime.containsKey(appointment.getDate())) {
                     datesAndTime.get(appointment.getDate()).add(appointment.getTime());
                 } else {
-                    List <Time> timeList = new ArrayList<>();
+                    List<Time> timeList = new ArrayList<>();
                     timeList.add(appointment.getTime());
-                    datesAndTime.put(appointment.getDate(),timeList);
+                    datesAndTime.put(appointment.getDate(), timeList);
                 }
             }
         }
