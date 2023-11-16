@@ -6,9 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.sql.Time;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -101,5 +100,22 @@ public class AppointlyService {
             adminDataRepo.save(new AdminData(null, userEntity, shops));
         }
         // check if already a same name shop exist
+    }
+
+    public Object getDates(String shopName) {
+        Optional<CustomerData> customerData = customerDataRepo.findByShopName(shopName);
+        Map<Date, List<Time>> datesAndTime = new HashMap<>();
+        if(customerData.isPresent()){
+            for (Appointment appointment : customerData.get().getAppointments()) {
+                if(datesAndTime.containsKey(appointment.getDate())){
+                    datesAndTime.get(appointment.getDate()).add(appointment.getTime());
+                } else {
+                    List <Time> timeList = new ArrayList<>();
+                    timeList.add(appointment.getTime());
+                    datesAndTime.put(appointment.getDate(),timeList);
+                }
+            }
+        }
+        return datesAndTime;
     }
 }

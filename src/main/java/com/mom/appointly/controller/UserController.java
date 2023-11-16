@@ -36,4 +36,9 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @GetMapping("/dates")
+    private ResponseEntity<?> getDates(@RequestParam String shopName){
+        return new ResponseEntity<>(appointlyService.getDates(shopName), HttpStatus.OK);
+    }
+
 }
