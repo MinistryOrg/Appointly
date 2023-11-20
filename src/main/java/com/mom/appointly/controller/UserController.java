@@ -24,15 +24,14 @@ public class UserController {
 
     @PutMapping("/editAppointment")
     private ResponseEntity<?> editAppointment(@RequestBody Appointment appointment){
-        System.out.println("Trying to edit");
         return new ResponseEntity<>
                 (appointlyService.editAppointment(appointment),
                         HttpStatus.OK);
     }
 
     @DeleteMapping("/cancelAppointment")
-    private ResponseEntity<?> cancelAppointment(@RequestBody Appointment appointment){
-        appointlyService.cancelAppointment(appointment);
+    private ResponseEntity<?> cancelAppointment(@RequestParam Long id){
+        appointlyService.cancelAppointment(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

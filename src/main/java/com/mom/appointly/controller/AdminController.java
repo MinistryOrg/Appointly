@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -16,12 +15,26 @@ import java.util.Optional;
 public class AdminController {
     private final AppointlyService appointlyService;
     @GetMapping("/users")
-    public Optional<CustomerData> getUsers(){
-       return appointlyService.getCustomerData();
+    public ResponseEntity<?> getUsers(){
+       return new ResponseEntity<>(appointlyService.getCustomerData(), HttpStatus.OK);
+    }
+    @GetMapping("/shops")
+    public ResponseEntity<?> getShops(){
+        return new ResponseEntity<>(appointlyService.getShops(), HttpStatus.OK);
     }
     @PostMapping("/addShop")
     public void addShop(@RequestBody Shop shop){
         appointlyService.addShop(shop);
+    }
+    @PatchMapping("/editShop")
+    public ResponseEntity<?> editShop(@RequestParam String shopName,@RequestBody Shop shop){
+        return new ResponseEntity<>(appointlyService.editShop(shopName, shop), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/deleteShop")
+    private ResponseEntity<?> deleteShop(@RequestParam String shopName){
+        appointlyService.deleteShop(shopName);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
     @GetMapping("/appointments")
     private ResponseEntity<?> getAppointments(){

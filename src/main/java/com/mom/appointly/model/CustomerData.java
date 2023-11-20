@@ -23,7 +23,7 @@ public class CustomerData {
     private UserEntity userEntity;
 
     @ManyToOne
-    @JoinColumn(name = "shop_id")
+    @JoinColumn(name = "shop_id") // in this shop got this number of  appointments
     private Shop shop;
 
     @OneToMany(mappedBy = "customerData",  cascade = CascadeType.ALL)
