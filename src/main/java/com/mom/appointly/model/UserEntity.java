@@ -14,7 +14,8 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter @Setter
+@Getter
+@Setter
 @Entity
 @Table
 public class UserEntity implements UserDetails {
@@ -31,13 +32,11 @@ public class UserEntity implements UserDetails {
     @JsonIgnore
     private Role role;
 
-    @OneToMany(cascade = CascadeType.ALL,
-            mappedBy = "userEntity")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "userEntity")
     @JsonIgnore
     private List<CustomerData> customerData;
 
-    @OneToMany(cascade = CascadeType.ALL,
-            mappedBy = "userEntity")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "userEntity")
     @JsonIgnore
     private List<AdminData> adminData;
 

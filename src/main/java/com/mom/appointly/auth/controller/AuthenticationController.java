@@ -21,24 +21,24 @@ public class AuthenticationController {
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> register(
             @RequestBody RegisterRequest request
-    ){
+    ) {
         return ResponseEntity.ok(authenticationService.register(request));
     }
 
     @PostMapping("/authenticate")
     public ResponseEntity<AuthenticationResponse> register(
             @RequestBody AuthenticationRequest request
-    ){
+    ) {
         return ResponseEntity.ok(authenticationService.authenticate(request));
     }
 
     @PatchMapping("/password")
-    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest changePasswordRequest, Principal connectedUser){
-        return ResponseEntity.ok(authenticationService.changePassword(changePasswordRequest,connectedUser));
+    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest changePasswordRequest, Principal connectedUser) {
+        return ResponseEntity.ok(authenticationService.changePassword(changePasswordRequest, connectedUser));
     }
 
     @GetMapping("/logout")
-    public void logout(){
+    public void logout() {
         SecurityContextHolder.clearContext();
     }
 

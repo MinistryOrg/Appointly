@@ -16,27 +16,27 @@ public class UserController {
     private final AppointlyService appointlyService;
 
     @PostMapping("/makeAppointment")
-    private ResponseEntity<?> makeAppointment(@RequestParam String shopName, @RequestBody Appointment appointment){
+    private ResponseEntity<?> makeAppointment(@RequestParam String shopName, @RequestBody Appointment appointment) {
         return new ResponseEntity<>
                 (appointlyService.makeAppointment(shopName, appointment)
-                , HttpStatus.CREATED);
+                        , HttpStatus.CREATED);
     }
 
     @PutMapping("/editAppointment")
-    private ResponseEntity<?> editAppointment(@RequestBody Appointment appointment){
+    private ResponseEntity<?> editAppointment(@RequestBody Appointment appointment) {
         return new ResponseEntity<>
                 (appointlyService.editAppointment(appointment),
                         HttpStatus.OK);
     }
 
     @DeleteMapping("/cancelAppointment")
-    private ResponseEntity<?> cancelAppointment(@RequestParam Long id){
+    private ResponseEntity<?> cancelAppointment(@RequestParam Long id) {
         appointlyService.cancelAppointment(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @GetMapping("/dates")
-    private ResponseEntity<?> getDates(@RequestParam String shopName){
+    private ResponseEntity<?> getDates(@RequestParam String shopName) {
         return new ResponseEntity<>(appointlyService.getDates(shopName), HttpStatus.OK);
     }
 

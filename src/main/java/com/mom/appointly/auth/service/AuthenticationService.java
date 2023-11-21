@@ -45,7 +45,7 @@ public class AuthenticationService {
                         request.getPassword()
                 )
         );
-        var user  = userRepo.findByEmail(request.getEmail()).orElseThrow();
+        var user = userRepo.findByEmail(request.getEmail()).orElseThrow();
         var jwtToken = jwtService.generateToken(user);
         return AuthenticationResponse
                 .builder()
@@ -56,15 +56,15 @@ public class AuthenticationService {
     public String changePassword(ChangePasswordRequest changePasswordRequest, Principal connectedUser) {
         var user = (UserEntity) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
         // check if the users type the correct password
-        if(!passwordEncoder.matches(changePasswordRequest.getOldPassword(), user.getPassword())){
+        if (!passwordEncoder.matches(changePasswordRequest.getOldPassword(), user.getPassword())) {
             return "Wrong password";
         }
         // check if the codes match
-        if(!changePasswordRequest.getNewPassword().equals(changePasswordRequest.getConfirmationPassword())){
+        if (!changePasswordRequest.getNewPassword().equals(changePasswordRequest.getConfirmationPassword())) {
             return "Passwords not the same";
         }
         // old password is the same with the new one
-        if(changePasswordRequest.getOldPassword().equals(changePasswordRequest.getNewPassword())){
+        if (changePasswordRequest.getOldPassword().equals(changePasswordRequest.getNewPassword())) {
             return "New password can't be the same with old";
         }
 

@@ -31,7 +31,7 @@ public class SecurityFilterChainConfig {
                         req.requestMatchers("/api/v1/auth/appointly/**")
                                 .permitAll()
                                 .requestMatchers("/api/v1/appointly/admin/**")
-                                .hasAnyAuthority(String.valueOf(Role.ADMIN))
+                                .hasAnyAuthority(String.valueOf(Role.ADMIN)) // only the user with this perm have the authority
                                 .requestMatchers("/api/v1/appointly/user/**")
                                 .hasAnyAuthority(String.valueOf(Role.USER), String.valueOf(Role.ADMIN))
                                 .anyRequest()

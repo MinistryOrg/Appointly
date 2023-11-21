@@ -18,10 +18,6 @@ public class AppointlyService {
     private final CustomerDataRepo customerDataRepo;
     private final AdminDataRepo adminDataRepo;
 
-    public List<UserEntity> getUsers() {
-        return userRepo.findAll();
-    }
-
     public AdminData getCustomerData() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Optional<AdminData> adminData = adminDataRepo.findByUserEntityEmail(email);
@@ -42,7 +38,7 @@ public class AppointlyService {
             appointmentRepo.save(appointment);
             customerData.get().getAppointments().add(appointment);
             return customerDataRepo.save(customerData.get());
-        } else if(appointmentRepo.findAppointmentByDateAndTime(appointment.getDate(), appointment.getTime()).isEmpty()){ // if is the first appointment of the user
+        } else if (appointmentRepo.findAppointmentByDateAndTime(appointment.getDate(), appointment.getTime()).isEmpty()) { // if is the first appointment of the user
             List<Appointment> appointments = new ArrayList<>();
             appointments.add(appointment);
             CustomerData customer = customerDataRepo.save(new CustomerData(userEntity, shop, appointments));
@@ -52,7 +48,6 @@ public class AppointlyService {
         }
         throw new RuntimeException(); // it means the appointment is already exist and returns 403 forbidden
     }
-
 
     // TODO : check if the appointment id is the same with the customer id
     //  that is store to the customer data, so the user to not change other users appointment
@@ -85,8 +80,11 @@ public class AppointlyService {
         }
     }
 
-    public Optional<Appointment> getAppointments() {
-        return null;
+    public List<Appointment> getAppointments(String shopName) {
+        if (customerDataRepo.findByShopName(shopName).isPresent()) {
+            return customerDataRepo.findByShopName(shopName).get().getAppointments();
+        }
+        throw new RuntimeException();
     }
 
     public void addShop(Shop shop) {
@@ -108,12 +106,12 @@ public class AppointlyService {
         // check if already a same name shop exist
     }
 
-    public Shop editShop(String shopName,Shop shop){
+    public Shop editShop(String shopName, Shop shop) {
         Optional<Shop> shopOptional = shopRepo.findByName(shopName);
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        if(shopOptional.isPresent()){ // shop exist
-            String ownerEmail =  shopOptional.get().getAdminData().getUserEntity().getEmail();
-            if(userEmail.equals(ownerEmail)){
+        if (shopOptional.isPresent()) { // shop exist
+            String ownerEmail = shopOptional.get().getAdminData().getUserEntity().getEmail();
+            if (userEmail.equals(ownerEmail)) {
                 shopRepo.save(shop);
                 return shop;
             }
@@ -122,7 +120,7 @@ public class AppointlyService {
         throw new RuntimeException();
     }
 
-    public void deleteShop(String shopName){
+    public void deleteShop(String shopName) {
         Optional<Shop> shopOptional = shopRepo.findByName(shopName);
 
         if (shopOptional.isPresent()) {
@@ -140,7 +138,7 @@ public class AppointlyService {
         }
     }
 
-    public List<Shop> getShops(){
+    public List<Shop> getShops() {
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         return adminDataRepo.findByUserEntityEmail(userEmail).get().getShops();
     }
@@ -150,7 +148,7 @@ public class AppointlyService {
         Map<Date, List<Time>> datesAndTime = new HashMap<>();
         if (customerData.isPresent()) {
             for (Appointment appointment : customerData.get().getAppointments()) {
-                if (datesAndTime.containsKey(appointment.getDate())) { // if the specific day already have a appointment add to the key of the date
+                if (datesAndTime.containsKey(appointment.getDate())) { // if the specific day already have an appointment add to the key of the date
                     datesAndTime.get(appointment.getDate()).add(appointment.getTime());
                 } else {
                     List<Time> timeList = new ArrayList<>();
