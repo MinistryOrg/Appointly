@@ -1,7 +1,6 @@
 package com.mom.appointly.repository;
 
 import com.mom.appointly.model.AdminData;
-import com.mom.appointly.model.CustomerData;
 import com.mom.appointly.model.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 

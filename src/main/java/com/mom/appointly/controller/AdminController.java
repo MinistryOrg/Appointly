@@ -1,13 +1,11 @@
 package com.mom.appointly.controller;
 
-import com.mom.appointly.model.*;
+import com.mom.appointly.model.Shop;
 import com.mom.appointly.service.AppointlyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/appointly/admin")

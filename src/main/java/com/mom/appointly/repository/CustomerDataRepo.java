@@ -1,6 +1,5 @@
 package com.mom.appointly.repository;
 
-import com.mom.appointly.model.Appointment;
 import com.mom.appointly.model.CustomerData;
 import com.mom.appointly.model.Shop;
 import com.mom.appointly.model.UserEntity;
