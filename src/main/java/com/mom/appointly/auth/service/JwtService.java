@@ -9,10 +9,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
+import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+
+import static java.time.temporal.ChronoUnit.DAYS;
 
 @Service
 public class JwtService {
@@ -29,7 +32,11 @@ public class JwtService {
                 .setClaims(extractClaim)
                 .setSubject(userDetails.getUsername()) // get the email
                 .setIssuedAt(new Date(System.currentTimeMillis())) // the date that is created
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 24)) // valid for 24 hours
+                .setExpiration(
+                        Date.from(
+                                Instant.now().plus(15, DAYS)
+                        )
+                )
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
 
