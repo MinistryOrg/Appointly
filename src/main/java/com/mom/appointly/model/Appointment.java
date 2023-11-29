@@ -22,6 +22,7 @@ public class Appointment {
     private float cost;
     private Date date;
     private Time time;
+    private String personnel;
     @ManyToOne
     @JoinColumn(name = "customer_data_id")
     @JsonIgnore

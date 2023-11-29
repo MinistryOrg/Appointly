@@ -13,15 +13,14 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 
 @RestController
-@CrossOrigin
 @RequestMapping("/api/v1/auth/appointly")
 @RequiredArgsConstructor
 public class AuthenticationController {
     private final AuthenticationService authenticationService;
 
     @GetMapping("/test")
-    public String getTest(){
-        return "working";
+    public  ResponseEntity<?> getTest(){
+        return ResponseEntity.ok("test");
     }
 
     @PostMapping("/register")
