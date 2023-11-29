@@ -1,5 +1,6 @@
 package com.mom.appointly.auth.service;
 
+import com.mom.appointly.model.UserEntity;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -42,8 +43,12 @@ public class JwtService {
 
     }
 
-    public String generateToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails);
+    public String generateToken(UserDetails userDetails, UserEntity userEntity) {
+        Map<String, Object> userClaims = new HashMap<>();
+        userClaims.put("firstname", userEntity.getFirstname());
+        userClaims.put("lastname", userEntity.getLastname());
+        userClaims.put("email", userEntity.getEmail());
+        return generateToken(userClaims, userDetails);
     }
 
     public Boolean isTokenValid(String token, UserDetails userDetails) {

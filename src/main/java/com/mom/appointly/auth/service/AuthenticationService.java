@@ -35,7 +35,7 @@ public class AuthenticationService {
                     .role(Role.ADMIN) // add the user you want the user to have when sign n
                     .build();
             userRepo.save(user);
-            var jwtToken = jwtService.generateToken(user);
+            var jwtToken = jwtService.generateToken(user,user);
             return AuthenticationResponse.builder()
                     .token(jwtToken)
                     .build();
@@ -51,7 +51,7 @@ public class AuthenticationService {
                 )
         );
         var user = userRepo.findByEmail(request.getEmail()).orElseThrow();
-        var jwtToken = jwtService.generateToken(user);
+        var jwtToken = jwtService.generateToken(user,user);
         return AuthenticationResponse
                 .builder()
                 .token(jwtToken)
