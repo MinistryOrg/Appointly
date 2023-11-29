@@ -18,6 +18,11 @@ import java.security.Principal;
 public class AuthenticationController {
     private final AuthenticationService authenticationService;
 
+    @GetMapping("/test")
+    public String getTest(){
+        return "working";
+    }
+
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> register(
             @RequestBody RegisterRequest request
