@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -24,18 +25,22 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
 
     public AuthenticationResponse register(RegisterRequest request) {
-        var user = UserEntity.builder()
-                .firstname(request.getFirstname())
-                .lastname(request.getLastname())
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.ADMIN) // add the user you want the user to have when sign n
-                .build();
-        userRepo.save(user);
-        var jwtToken = jwtService.generateToken(user);
-        return AuthenticationResponse.builder()
-                .token(jwtToken)
-                .build();
+        var userExist = userRepo.findByEmail(request.getEmail());
+        if(userExist.isEmpty()){
+            var user = UserEntity.builder()
+                    .firstname(request.getFirstname())
+                    .lastname(request.getLastname())
+                    .email(request.getEmail())
+                    .password(passwordEncoder.encode(request.getPassword()))
+                    .role(Role.ADMIN) // add the user you want the user to have when sign n
+                    .build();
+            userRepo.save(user);
+            var jwtToken = jwtService.generateToken(user);
+            return AuthenticationResponse.builder()
+                    .token(jwtToken)
+                    .build();
+        }
+        throw new RuntimeException();
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
