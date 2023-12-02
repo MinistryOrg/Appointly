@@ -38,4 +38,9 @@ public class UserController {
         return new ResponseEntity<>(appointlyService.getDates(shopName), HttpStatus.OK);
     }
 
+    @GetMapping("/shopsByLocationService")
+    private ResponseEntity<?> getByLocationService(@RequestParam String location, @RequestParam String service){
+        return new ResponseEntity<>(appointlyService.searchByLocationAndService(location, service), HttpStatus.OK);
+    }
+
 }

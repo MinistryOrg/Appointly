@@ -4,36 +4,36 @@ cors:
   allowed-headers: "*"
   exposed-headers: "*"
 
-spring:
-  datasource:
-    url: jdbc:postgresql://containers-us-west-89.railway.app:6374/railway
-    username: postgres
-    password: zWtnHt6AL9mg4E0HCAdy
-    driver-class-name: org.postgresql.Driver
-  jpa:
-    hibernate:
-      ddl-auto: create
-    show-sql: false
-    properties:
-      hibernate:
-        format_sql: true
-    database: postgresql
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
 #spring:
 #  datasource:
-#    url: jdbc:postgresql://localhost:5432/levart
+#    url: jdbc:postgresql://containers-us-west-89.railway.app:6374/railway
 #    username: postgres
-#    password: sakalam18
+#    password: zWtnHt6AL9mg4E0HCAdy
 #    driver-class-name: org.postgresql.Driver
 #  jpa:
 #    hibernate:
-#      ddl-auto: create-drop
+#      ddl-auto: create
 #    show-sql: false
 #    properties:
 #      hibernate:
 #        format_sql: true
 #    database: postgresql
 #    database-platform: org.hibernate.dialect.PostgreSQLDialect
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/levart
+    username: postgres
+    password: sakalam18
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
 
 
 

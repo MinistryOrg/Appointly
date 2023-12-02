@@ -14,14 +14,18 @@ import java.util.List;
 @Entity
 @Table
 public class Shop {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String name;
-    private String type;
+    private String service;
+    private String location;
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "shop")
     @JsonIgnore
     private List<CustomerData> customerData;
+
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "admin_data_id")
     @JsonIgnore

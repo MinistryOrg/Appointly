@@ -15,6 +15,7 @@ import java.util.Date;
 @Entity
 @Table
 public class Appointment {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -23,6 +24,7 @@ public class Appointment {
     private Date date;
     private Time time;
     private String personnel;
+
     @ManyToOne
     @JoinColumn(name = "customer_data_id")
     @JsonIgnore

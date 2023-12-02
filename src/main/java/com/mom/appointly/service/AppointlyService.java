@@ -144,6 +144,20 @@ public class AppointlyService {
         return adminDataRepo.findByUserEntityEmail(userEmail).get().getShops();
     }
 
+    public List<Shop> searchByLocationAndService(String location, String service){
+        List <Shop> shopList =  shopRepo.findShopByLocationAndService(location, service);
+        if(!shopList.isEmpty()){
+            return shopList;
+        }
+        throw new RuntimeException();
+    }
+
+    public List<Shop> searchByName(String shopName){
+        // get all the shops
+        // return the shops that contains the characters
+        return null;
+    }
+
     public void checkIfNameAlreadyExist(String name) {
         if (shopRepo.findByName(name).isPresent()) {
             throw new RuntimeException();
