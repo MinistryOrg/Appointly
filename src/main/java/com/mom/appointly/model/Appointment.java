@@ -19,7 +19,7 @@ public class Appointment {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private String type;
+    private String service;
     private float cost;
     private Date date;
     private Time time;

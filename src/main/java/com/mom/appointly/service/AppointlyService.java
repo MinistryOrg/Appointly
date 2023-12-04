@@ -45,20 +45,27 @@ public class AppointlyService {
             appointmentRepo.save(appointment);
             return customer;
         }
-        throw new RuntimeException(); // it means the appointment is already exist and returns 403 forbidden
+        throw new RuntimeException("Appointment already exist"); // it means the appointment is already exist and returns 403 forbidden
     }
 
-    // TODO : check if the appointment id is the same with the customer id
-    //  that is store to the customer data, so the user to not change other users appointment
-    //  if the role is admin and the owner of the shop to be able to change for all the users
     public Appointment editAppointment(Appointment appointment) {
         Optional<Appointment> optionalAppointment = appointmentRepo.findById(appointment.getId());
 
         if (optionalAppointment.isPresent()) {
+            // check if the user that calls the api can edit the specific appointment
+            canMakeChanges(optionalAppointment.get().getCustomerData().getUserEntity());
             return appointmentRepo.save(appointment);
         }
 
-        throw new RuntimeException(); // appointment doesn't exit for edit and returns 403 forbidden
+        throw new RuntimeException("Appointment doesn't exist"); // appointment doesn't exit for edit and returns 403 forbidden
+    }
+
+    public void canMakeChanges(UserEntity userEntity){
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserEntity connectedUser = userRepo.findByEmail(userEmail).get();
+        if(!userEntity.equals(connectedUser) || userEntity.getRole().equals(Role.USER)){
+            throw new RuntimeException("You don't have the permissions");
+        }
     }
 
     public void cancelAppointment(Long id) {
@@ -83,7 +90,7 @@ public class AppointlyService {
         if (customerDataRepo.findByShopName(shopName).isPresent()) {
             return customerDataRepo.findByShopName(shopName).get().getAppointments();
         }
-        throw new RuntimeException();
+        throw new RuntimeException("Shop doesn't exit");
     }
 
     public void addShop(Shop shop) {
@@ -113,12 +120,12 @@ public class AppointlyService {
         checkIfNameAlreadyExist(shop.getName()); // check if a shop with the same name exist
         if (shopOptional.isPresent()) { // shop exist
             String ownerEmail = shopOptional.get().getAdminData().getUserEntity().getEmail();
-            if (userEmail.equals(ownerEmail)) {
+            if (userEmail.equals(ownerEmail)) { // checks if is the owner of the shop
                 shopRepo.save(shop);
                 return shop;
             }
         }
-        throw new RuntimeException();
+        throw new RuntimeException("Edit failed");
     }
 
     public void deleteShop(String shopName) {
@@ -149,18 +156,12 @@ public class AppointlyService {
         if(!shopList.isEmpty()){
             return shopList;
         }
-        throw new RuntimeException();
-    }
-
-    public List<Shop> searchByName(String shopName){
-        // get all the shops
-        // return the shops that contains the characters
-        return null;
+        throw new RuntimeException("Shop doesn't exist");
     }
 
     public void checkIfNameAlreadyExist(String name) {
         if (shopRepo.findByName(name).isPresent()) {
-            throw new RuntimeException();
+            throw new RuntimeException("Name already exist");
         }
     }
 

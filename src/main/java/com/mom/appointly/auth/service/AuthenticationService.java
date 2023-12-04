@@ -40,7 +40,7 @@ public class AuthenticationService {
                     .token(jwtToken)
                     .build();
         }
-        throw new RuntimeException();
+        throw new RuntimeException("Fail to register the user, user already exist");
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
