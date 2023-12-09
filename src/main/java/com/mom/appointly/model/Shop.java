@@ -22,6 +22,7 @@ public class Shop {
     private String service;
     private String location;
 
+    private boolean partner;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "shop")
     @JsonIgnore
     private List<CustomerData> customerData;
