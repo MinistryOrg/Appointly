@@ -38,8 +38,8 @@ public class AuthenticationController {
     }
 
     @PatchMapping("/password")
-    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest changePasswordRequest, Principal connectedUser) {
-        return ResponseEntity.ok(authenticationService.changePassword(changePasswordRequest, connectedUser));
+    public void changePassword(@RequestBody ChangePasswordRequest changePasswordRequest, Principal connectedUser) {
+        authenticationService.changePassword(changePasswordRequest, connectedUser);
     }
 
     @GetMapping("/logout")

@@ -21,8 +21,6 @@ public class AppointlyService {
     public AdminData getCustomerData() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName(); // return the email of the user that is connected
         Optional<AdminData> adminData = adminDataRepo.findByUserEntityEmail(email); // get the admin data that is connected
-//        return customerDataRepo
-//                .findByShopName(adminData.get().getShops().get(0).getName());// add the mapped by to get the appointments
         return adminData.get();
     }
 
@@ -63,6 +61,7 @@ public class AppointlyService {
     public void canMakeChanges(UserEntity userEntity){
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         UserEntity connectedUser = userRepo.findByEmail(userEmail).get();
+        // if the user doesn't own the change he wants to make or is not the admin throws exception
         if(!userEntity.equals(connectedUser) || userEntity.getRole().equals(Role.USER)){
             throw new RuntimeException("You don't have the permissions");
         }
@@ -74,6 +73,7 @@ public class AppointlyService {
         if (appointmentOptional.isPresent()) { // check if the appointment exist
             Appointment canceledAppointment = appointmentOptional.get();
             CustomerData customerData = canceledAppointment.getCustomerData();
+            canMakeChanges(customerData.getUserEntity());
             // Remove the appointment from the  list of appointments
             customerData.getAppointments().remove(canceledAppointment);
             // Set null the customer_data from the canceled appointment to be able to delete
@@ -84,6 +84,7 @@ public class AppointlyService {
             }
             appointmentRepo.delete(canceledAppointment);
         }
+        throw new RuntimeException("The appointment doesn't exist");
     }
 
     public List<Appointment> getAppointments(String shopName) {
@@ -130,7 +131,8 @@ public class AppointlyService {
 
     public void deleteShop(String shopName) {
         Optional<Shop> shopOptional = shopRepo.findByName(shopName);
-
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        canMakeChanges(userRepo.findByEmail(userEmail).get());
         if (shopOptional.isPresent()) {
             Shop canceledShop = shopOptional.get();
             AdminData adminData = canceledShop.getAdminData();

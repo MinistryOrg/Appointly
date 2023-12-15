@@ -58,23 +58,22 @@ public class AuthenticationService {
                 .build();
     }
 
-    public String changePassword(ChangePasswordRequest changePasswordRequest, Principal connectedUser) {
+    public void changePassword(ChangePasswordRequest changePasswordRequest, Principal connectedUser) {
         var user = (UserEntity) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
         // check if the users type the correct password
         if (!passwordEncoder.matches(changePasswordRequest.getOldPassword(), user.getPassword())) {
-            return "Wrong password";
+            throw new RuntimeException("Wrong password");
         }
         // check if the codes match
         if (!changePasswordRequest.getNewPassword().equals(changePasswordRequest.getConfirmationPassword())) {
-            return "Passwords not the same";
+            throw new RuntimeException("Passwords not the same");
         }
         // old password is the same with the new one
         if (changePasswordRequest.getOldPassword().equals(changePasswordRequest.getNewPassword())) {
-            return "New password can't be the same with old";
+            throw new RuntimeException("New password can't be the same with old");
         }
 
         user.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
         userRepo.save(user);
-        return "Password has change";
     }
 }
