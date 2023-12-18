@@ -40,7 +40,6 @@ public class JwtService {
                 )
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
-
     }
 
     public String generateToken(UserDetails userDetails, UserEntity userEntity) {
