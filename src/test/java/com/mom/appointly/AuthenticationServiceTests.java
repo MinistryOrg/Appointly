@@ -17,9 +17,6 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.security.Principal;
@@ -90,9 +87,9 @@ public class AuthenticationServiceTests {
     @Test
     void authenticateSuccessfulAuthentication() {
         // Arrange
-        AuthenticationRequest authenticationRequest = new AuthenticationRequest("john.doe@example.com", "password123");
+        AuthenticationRequest authenticationRequest = new AuthenticationRequest("pgeo@hotmail.com", "password123");
         UserEntity mockUser = UserEntity.builder()
-                .email("john.doe@example.com")
+                .email("pgeo@hotmail.com")
                 .password("encodedPassword") // assuming you know the encoded password
                 .build();
 
@@ -111,7 +108,7 @@ public class AuthenticationServiceTests {
     @Test
     void authenticateInvalidCredentials() {
         // Arrange
-        AuthenticationRequest authenticationRequest = new AuthenticationRequest("nonexistent.user@example.com", "invalidPassword");
+        AuthenticationRequest authenticationRequest = new AuthenticationRequest("deniparxobro@example.com", "invalidPassword");
 
         Mockito.when(userRepo.findByEmail(Mockito.anyString())).thenReturn(Optional.empty());
         Mockito.doThrow(new RuntimeException("Invalid credentials"))
@@ -128,7 +125,7 @@ public class AuthenticationServiceTests {
         // Arrange
         ChangePasswordRequest changePasswordRequest = new ChangePasswordRequest("oldPassword", "newPassword", "newPassword");
         UserEntity mockUser = UserEntity.builder()
-                .email("john.doe@example.com")
+                .email("pgeo@hotmail.com")
                 .password("encodedOldPassword") // assuming you know the encoded old password
                 .build();
         Principal mockPrincipal = new UsernamePasswordAuthenticationToken(mockUser, null);
@@ -150,7 +147,7 @@ public class AuthenticationServiceTests {
         // Arrange
         ChangePasswordRequest changePasswordRequest = new ChangePasswordRequest("wrongOldPassword", "newPassword", "newPassword");
         UserEntity mockUser = UserEntity.builder()
-                .email("john.doe@example.com")
+                .email("pgeo@hotmail.com")
                 .password("encodedOldPassword") // assuming you know the encoded old password
                 .build();
         Principal mockPrincipal = new UsernamePasswordAuthenticationToken(mockUser, null);
@@ -168,7 +165,7 @@ public class AuthenticationServiceTests {
         // Arrange
         ChangePasswordRequest changePasswordRequest = new ChangePasswordRequest("oldPassword", "newPassword", "differentConfirmationPassword");
         UserEntity mockUser = UserEntity.builder()
-                .email("john.doe@example.com")
+                .email("pgeo@hotmail.com")
                 .password("encodedOldPassword") // assuming you know the encoded old password
                 .build();
         Principal mockPrincipal = new UsernamePasswordAuthenticationToken(mockUser, null);
@@ -186,7 +183,7 @@ public class AuthenticationServiceTests {
         // Arrange
         ChangePasswordRequest changePasswordRequest = new ChangePasswordRequest("oldPassword", "oldPassword", "oldPassword");
         UserEntity mockUser = UserEntity.builder()
-                .email("john.doe@example.com")
+                .email("pgeo@hotmail.com")
                 .password("encodedOldPassword") // assuming you know the encoded old password
                 .build();
         Principal mockPrincipal = new UsernamePasswordAuthenticationToken(mockUser, null);

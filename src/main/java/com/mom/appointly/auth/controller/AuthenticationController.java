@@ -37,7 +37,7 @@ public class AuthenticationController {
         return ResponseEntity.ok(authenticationService.authenticate(request));
     }
 
-    @PatchMapping("/password")
+    @PostMapping("/password")
     public void changePassword(@RequestBody ChangePasswordRequest changePasswordRequest, Principal connectedUser) {
         authenticationService.changePassword(changePasswordRequest, connectedUser);
     }
