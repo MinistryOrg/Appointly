@@ -70,7 +70,7 @@ public class AppointlyService {
     }
 
     public void cancelAppointment(Long id) {
-        Optional<Appointment> appointmentOptional = appointmentRepo.findById(id);
+        Optional<Appointment> appointmentOptional = appointmentRepo.findById(id.longValue());
 
         if (appointmentOptional.isPresent()) { // check if the appointment exist
             Appointment canceledAppointment = appointmentOptional.get();
@@ -85,6 +85,7 @@ public class AppointlyService {
                 customerDataRepo.delete(customerData);
             }
             appointmentRepo.delete(canceledAppointment);
+            return;
         }
         throw new RuntimeException("The appointment doesn't exist");
     }

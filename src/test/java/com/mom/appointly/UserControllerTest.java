@@ -14,8 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -123,4 +126,92 @@ public class UserControllerTest {
         userRepo.delete(user);
         shopRepo.delete(shop);
     }
+
+
+    @Test
+    public void testCancelAppointmentIntegration() throws Exception {
+        // Arrange
+        String baseUrl = "http://localhost:" + port +
+                "/api/v1/appointly/user/cancelAppointment";
+
+        // Create a user
+        UserEntity user = testUtil.createUser(passwordEncoder);
+        userRepo.save(user);
+        // create shop
+        Shop shop = testUtil.createShop();
+        shopRepo.save(shop);
+        // Create an initial appointment
+        Appointment initialAppointment = testUtil.createAppointment();
+        // Create Customer data
+        CustomerData customerData = testUtil.createCustomerData(user, shop, initialAppointment);
+        customerDataRepo.save(customerData);
+        // Save the appointment with customerData to the database
+        initialAppointment.setCustomerData(customerData);
+        appointmentRepo.save(initialAppointment);
+
+        HttpHeaders headers = new HttpHeaders();
+        // Get a valid authentication token
+        headers.setBearerAuth(testUtil.getToken(user.getEmail(), "password123", restTemplate));
+        // Create a request entity without a body
+        HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+        // Make the HTTP request to your endpoint
+        ResponseEntity<String> responseEntity = restTemplate.exchange(
+                baseUrl + "?id=" + initialAppointment.getId(),
+                HttpMethod.DELETE,
+                requestEntity,
+                String.class
+        );
+        // Verify the response status
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+
+        // Verify that the appointment and related data have been deleted from the database
+        assertEquals(0, appointmentRepo.count());
+        assertEquals(0, customerDataRepo.count());
+
+        // Verify that the user and shop still exist in the database
+        assertEquals(1, userRepo.count());
+        assertEquals(1, shopRepo.count());
+
+        // Remove the test data from the database
+        customerDataRepo.delete(customerData);
+        appointmentRepo.delete(initialAppointment);
+        userRepo.delete(user);
+        shopRepo.delete(shop);
+    }
+
+    @Test
+    public void testGetDatesIntegration() throws Exception {
+        // Arrange
+        String baseUrl = "http://localhost:" + port +
+                "/api/v1/appointly/user/dates";
+
+        // Create a user
+        UserEntity user = testUtil.createUser(passwordEncoder);
+        userRepo.save(user);
+        // create shop
+        Shop shop = testUtil.createShop();
+        shopRepo.save(shop);
+
+        HttpHeaders headers = new HttpHeaders();
+        // Get a valid authentication token
+        headers.setBearerAuth(testUtil.getToken(user.getEmail(), "password123", restTemplate));
+        // Create a request entity without a body (as it's a GET request)
+        HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+
+        // Make the HTTP request to your endpoint
+        ResponseEntity<String> responseEntity = restTemplate.exchange(
+                baseUrl + "?shopName=" + shop.getName(),
+                HttpMethod.GET,
+                requestEntity,
+                String.class
+        );
+        // Verify the response status
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+
+        // Remove the test data from the database (if needed)
+        userRepo.delete(user);
+        shopRepo.delete(shop);
+    }
+
+
 }
