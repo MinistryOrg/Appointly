@@ -1,6 +1,9 @@
 package com.mom.appointly;
 
-import com.mom.appointly.model.*;
+import com.mom.appointly.model.Appointment;
+import com.mom.appointly.model.CustomerData;
+import com.mom.appointly.model.Shop;
+import com.mom.appointly.model.UserEntity;
 import com.mom.appointly.repository.AppointmentRepo;
 import com.mom.appointly.repository.CustomerDataRepo;
 import com.mom.appointly.repository.ShopRepo;
@@ -12,14 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.*;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.sql.Time;
-import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -39,36 +35,24 @@ public class UserControllerTest {
     private CustomerDataRepo customerDataRepo;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    TestUtil testUtil = new TestUtil();
 
     @Test
-    public void testMakeAppointment() {
+    public void testMakeAppointmentIntegration() {
         // Arrange
         String baseUrl = "http://localhost:" + port +
                 "/api/v1/appointly/user/makeAppointment?shopName=shopname";
         // Create a user
-        String userEmail = "panikkos@gmail.com";
-        String userPassword = "password123";
-        UserEntity user = UserEntity.builder()
-                .email(userEmail)
-                .password(passwordEncoder.encode(userPassword))
-                .role(Role.USER)
-                .build();
+        UserEntity user = testUtil.createUser(passwordEncoder);
         userRepo.save(user);
-
         // create appointment
-        Appointment appointment = new Appointment(
-                 "haircut", 50.0f, new Date(System.currentTimeMillis())
-                , new Time(System.currentTimeMillis()), "Stylish");
+        Appointment appointment = testUtil.createAppointment();
         // create shop to connect it with the appointment
-        Shop shop = new Shop(
-                1L, "shopname", "haircut", "Athens",
-                true, null, null);
+        Shop shop = testUtil.createShop();
         shopRepo.save(shop);
-
-        TestUtil testUtil = new TestUtil();
         HttpHeaders headers = new HttpHeaders();
         // get a valid authentication token
-        headers.setBearerAuth(testUtil.getToken(userEmail, userPassword, restTemplate));
+        headers.setBearerAuth(testUtil.getToken(user.getEmail(), "password123", restTemplate));
         // Create a request entity with the appointment as the request body
         HttpEntity<Appointment> requestEntity = new HttpEntity<>(appointment, headers);
         // Make the HTTP request to your endpoint
@@ -80,11 +64,63 @@ public class UserControllerTest {
         );
         // Verify the response status
         assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());
-
         // remove the test data from the database
         customerDataRepo.deleteAll(); // delete all the customer data from the test database
         userRepo.delete(user);
         shopRepo.delete(shop);
         appointmentRepo.delete(appointment);
+    }
+
+    @Test
+    public void testEditAppointmentIntegration() {
+        // Arrange
+        String baseUrl = "http://localhost:" + port +
+                "/api/v1/appointly/user/editAppointment";
+
+        // Create a user
+        UserEntity user = testUtil.createUser(passwordEncoder);
+        userRepo.save(user);
+        // create shop
+        Shop shop = testUtil.createShop();
+        shopRepo.save(shop);
+        // Create an initial appointment
+        Appointment initialAppointment = testUtil.createAppointment();
+        // Create Customer data
+        CustomerData customerData = testUtil.createCustomerData(user,shop,initialAppointment);
+        customerDataRepo.save(customerData);
+        // Save the appointment with customerData to the database
+        initialAppointment.setCustomerData(customerData);
+        appointmentRepo.save(initialAppointment);
+        // Update the appointment details
+        initialAppointment.setService("newService");
+        initialAppointment.setCost(60.0f);
+
+        HttpHeaders headers = new HttpHeaders();
+        // Get a valid authentication token
+        headers.setBearerAuth(testUtil.getToken(user.getEmail(), "password123", restTemplate));
+        // Create a request entity with the updated appointment as the request body
+        HttpEntity<Appointment> requestEntity = new HttpEntity<>(initialAppointment, headers);
+        // Make the HTTP request to your endpoint
+        ResponseEntity<String> responseEntity = restTemplate.exchange(
+                baseUrl,
+                HttpMethod.PUT, // Use PUT for editing appointment
+                requestEntity,
+                String.class
+        );
+        // Verify the response status
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+
+        // Optionally, you can fetch the updated appointment from the database and assert its new values
+        Appointment updatedAppointment = appointmentRepo.findById(initialAppointment.getId()).orElseThrow();
+
+        // Assertions on the updatedAppointment values
+        assertEquals("newService", updatedAppointment.getService());
+        assertEquals(60.0f, updatedAppointment.getCost());
+
+        // Remove the test data from the database
+        customerDataRepo.delete(customerData);
+        appointmentRepo.delete(updatedAppointment);
+        userRepo.delete(user);
+        shopRepo.delete(shop);
     }
 }
