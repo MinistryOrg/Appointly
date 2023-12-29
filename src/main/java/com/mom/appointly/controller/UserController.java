@@ -17,7 +17,7 @@ public class UserController {
     private ResponseEntity<?> makeAppointment(@RequestParam String shopName, @RequestBody Appointment appointment) {
         return new ResponseEntity<>
                 (appointlyService.makeAppointment(shopName, appointment)
-                        , HttpStatus.CREATED);
+                        ,HttpStatus.CREATED);
     }
 
     @PutMapping("/editAppointment")

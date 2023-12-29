@@ -29,5 +29,12 @@ public class Appointment {
     @JoinColumn(name = "customer_data_id")
     @JsonIgnore
     private CustomerData customerData;
-
+    // constructor for the tests
+    public Appointment(String service, float cost, Date date, Time time, String personnel) {
+        this.service = service;
+        this.cost = cost;
+        this.date = date;
+        this.time = time;
+        this.personnel = personnel;
+    }
 }

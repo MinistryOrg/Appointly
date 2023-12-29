@@ -29,8 +29,9 @@ public class AppointlyService {
         UserEntity userEntity = userRepo.findByEmail(userEmail).get();
         Shop shop = shopRepo.findByName(shopName).get();
         Optional<CustomerData> customerData = customerDataRepo.findByUserEntityAndShop(userEntity, shop);
-
-        if (customerData.isPresent() && appointmentRepo.findAppointmentByDateAndTime(appointment.getDate(), appointment.getTime()).isEmpty()) { // check if the user already have make an appointment in this shop to add it to the list
+        // check if the user already have make an appointment in this shop to add it to the list
+        if (customerData.isPresent() &&
+                appointmentRepo.findAppointmentByDateAndTime(appointment.getDate(), appointment.getTime()).isEmpty()) {
             appointment.setCustomerData(customerData.get());
             appointmentRepo.save(appointment);
             customerData.get().getAppointments().add(appointment);
@@ -44,7 +45,8 @@ public class AppointlyService {
             return customer;
         }
         throw new RuntimeException("Appointment already exist"); // it means the appointment is already exist and returns 403 forbidden
-    }
+
+        }
 
     public Appointment editAppointment(Appointment appointment) {
         Optional<Appointment> optionalAppointment = appointmentRepo.findById(appointment.getId());
