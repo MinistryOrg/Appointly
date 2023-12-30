@@ -214,4 +214,45 @@ public class UserControllerTest {
     }
 
 
+    @Test
+    public void testGetByLocationServiceIntegration() throws Exception {
+        // Arrange
+        String baseUrl = "http://localhost:" + port +
+                "/api/v1/appointly/user/shopsByLocationService";
+
+        // Create a user
+        UserEntity user = testUtil.createUser(passwordEncoder);
+        userRepo.save(user);
+
+        HttpHeaders headers = new HttpHeaders();
+        // Get a valid authentication token
+        headers.setBearerAuth(testUtil.getToken(user.getEmail(), "password123", restTemplate));
+        // Create a request entity without a body (as it's a GET request)
+        HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+
+        // Create a shop for testing
+        Shop shop = new Shop(
+                1L, "shopname", "service", "location",
+                true, null, null);
+        shopRepo.save(shop);
+
+        // Make the HTTP request to your endpoint
+        ResponseEntity<List<Shop>> responseEntity = restTemplate.exchange(
+                baseUrl + "?location=location&service=service",
+                HttpMethod.GET,
+                requestEntity,
+                new ParameterizedTypeReference<List<Shop>>() {}
+        );
+
+        // Verify the response status
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        // get the list of shops that the request return
+        List<Shop> shops = responseEntity.getBody();
+        assertEquals(1, shops.size());  // expected one shop let's see if is correct
+
+        // Remove the test data from the database (if needed)
+        userRepo.delete(user);
+        shopRepo.delete(shop);
+    }
+
 }
