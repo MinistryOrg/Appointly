@@ -74,4 +74,6 @@ public class AuthenticationService {
         user.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
         userRepo.save(user);
     }
+
+
 }
