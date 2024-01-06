@@ -50,6 +50,7 @@ public class AuthenticationController {
     public void logout() {
         SecurityContextHolder.clearContext();
     }
+
     @GetMapping("/shopsByLocationService")
     private ResponseEntity<?> getByLocationService(@RequestParam String location, @RequestParam String service){
         return new ResponseEntity<>(appointlyService.searchByLocationAndService(location, service), HttpStatus.OK);

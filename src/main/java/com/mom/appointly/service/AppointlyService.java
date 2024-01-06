@@ -106,6 +106,7 @@ public class AppointlyService {
         
         if (adminData.isPresent()) { // if the admin already have a shop in the app add it the new one to the list
             adminData.get().getShops().add(shop);
+            shop.setAdminData(adminData.get());
             shopRepo.save(shop);
             adminDataRepo.save(adminData.get());
         } else { // if is the first shop that the admin create, add a new AdminData to the database
