@@ -56,4 +56,9 @@ public class AuthenticationController {
         return new ResponseEntity<>(appointlyService.searchByLocationAndService(location, service), HttpStatus.OK);
     }
 
+    @GetMapping("/searchShopById")
+    private  ResponseEntity<?> getShopById(@RequestParam Long id){
+        return new ResponseEntity<>(appointlyService.searchShopById(id), HttpStatus.OK);
+    }
+
 }

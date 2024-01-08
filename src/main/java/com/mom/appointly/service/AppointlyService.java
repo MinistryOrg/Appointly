@@ -152,6 +152,14 @@ public class AppointlyService {
         }
     }
 
+    public Shop searchShopById(Long id){
+        Optional<Shop> shopOptional = shopRepo.findById(id);
+        if(shopOptional.isPresent()){
+            return shopOptional.get();
+        }
+        throw new RuntimeException(" The shop doesn't exist");
+    }
+
     public List<Shop> getShops() {
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         return adminDataRepo.findByUserEntityEmail(userEmail).get().getShops();
