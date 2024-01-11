@@ -5,6 +5,8 @@ import com.mom.appointly.model.Shop;
 import com.mom.appointly.model.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.sql.Time;
+import java.util.Date;
 import java.util.Optional;
 
 public interface CustomerDataRepo extends JpaRepository<CustomerData, Long> {
@@ -15,4 +17,5 @@ public interface CustomerDataRepo extends JpaRepository<CustomerData, Long> {
     Optional<CustomerData> findByUserEntityId(Long id);
     Optional<CustomerData> findByUserEntityEmail(String email);
     Optional<CustomerData> findByUserEntityAndShop(UserEntity userEntity, Shop shop);
+    Optional<CustomerData> findByShopAndAppointmentsDateAndAppointmentsTime(Shop shop, Date date, Time time);
 }

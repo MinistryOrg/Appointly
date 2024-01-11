@@ -9,4 +9,5 @@ import java.util.Optional;
 
 public interface AppointmentRepo extends JpaRepository<Appointment, Long> {
     Optional<Appointment> findAppointmentByDateAndTime(Date date, Time time);
+    Optional<Appointment> findAppointmentByDate(Date date);
 }

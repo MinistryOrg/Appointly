@@ -31,12 +31,12 @@ public class AppointlyService {
         Optional<CustomerData> customerData = customerDataRepo.findByUserEntityAndShop(userEntity, shop);
         // check if the user already have make an appointment in this shop to add it to the list
         if (customerData.isPresent() &&
-                appointmentRepo.findAppointmentByDateAndTime(appointment.getDate(), appointment.getTime()).isEmpty()) {
+               canMakeAppointment(shop,appointment)) {
             appointment.setCustomerData(customerData.get());
             appointmentRepo.save(appointment);
             customerData.get().getAppointments().add(appointment);
             return customerDataRepo.save(customerData.get());
-        } else if (appointmentRepo.findAppointmentByDateAndTime(appointment.getDate(), appointment.getTime()).isEmpty()) { // if is the first appointment of the user
+        } else if (canMakeAppointment(shop,appointment)) { // if is the first appointment of the user
             List<Appointment> appointments = new ArrayList<>();
             appointments.add(appointment);
             CustomerData customer = customerDataRepo.save(new CustomerData(userEntity, shop, appointments));
@@ -50,7 +50,6 @@ public class AppointlyService {
 
     public Appointment editAppointment(Appointment appointment) {
         Optional<Appointment> optionalAppointment = appointmentRepo.findById(appointment.getId());
-
         if (optionalAppointment.isPresent()) {
             // check if the user that calls the api can edit the specific appointment
             canMakeChanges(optionalAppointment.get().getCustomerData().getUserEntity());
@@ -67,6 +66,13 @@ public class AppointlyService {
         if(!userEntity.equals(connectedUser) || userEntity.getRole().equals(Role.USER)){
             throw new RuntimeException("You don't have the permissions");
         }
+    }
+
+    public boolean canMakeAppointment(Shop shop, Appointment appointment){
+        return customerDataRepo.findByShopAndAppointmentsDateAndAppointmentsTime(shop,
+                appointment.getDate(),
+                        appointment.getTime())
+                .isEmpty();
     }
 
     public void cancelAppointment(Long id) {
