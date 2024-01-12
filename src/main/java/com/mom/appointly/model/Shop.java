@@ -15,7 +15,6 @@ import java.util.Map;
 @Entity
 @Table
 public class Shop {
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
