@@ -11,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.sql.Time;
 import java.util.ArrayList;
 import java.sql.Date;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -43,9 +44,8 @@ public class TestUtil {
     }
 
     public Shop createShop() {
-        return new Shop(
-                1L, "shopname", "haircut", "Athens",
-                true, null, null);
+
+        return new Shop("Test Shop", "Test Location", "Test Address", "+30 123 456789", "9:00", "18:00", 4.2f, "Test Description", "Test Service", true, Arrays.asList("Service1", "Service2", "Service3"), Arrays.asList("Service1 20", "Service2 30", "Service3 15"), Arrays.asList("Person1", "Person2", "Person3"));
     }
 
     public CustomerData createCustomerData(UserEntity user, Shop shop, Appointment appointment) {
