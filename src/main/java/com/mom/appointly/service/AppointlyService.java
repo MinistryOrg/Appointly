@@ -7,6 +7,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.sql.Time;
+import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -188,18 +189,27 @@ public class AppointlyService {
     public Object getDates(String shopName) {
         Optional<CustomerData> customerData = customerDataRepo.findByShopName(shopName);
         Map<Date, List<Time>> datesAndTime = new HashMap<>();
+
         if (customerData.isPresent()) {
+            LocalDate currentDate = LocalDate.now();
+
             for (Appointment appointment : customerData.get().getAppointments()) {
-                if (datesAndTime.containsKey(appointment.getDate())) { // if the specific day already have an appointment add to the key of the date
-                    datesAndTime.get(appointment.getDate()).add(appointment.getTime());
-                } else {
-                    List<Time> timeList = new ArrayList<>();
-                    timeList.add(appointment.getTime());
-                    datesAndTime.put(appointment.getDate(), timeList);
+                LocalDate appointmentDate = appointment.getDate().toLocalDate();
+
+                // Check if the appointment date is on or after the current date
+                if (!appointmentDate.isBefore(currentDate)) {
+                    if (datesAndTime.containsKey(appointment.getDate())) {
+                        // If the specific day already has an appointment, add to the key of the date
+                        datesAndTime.get(appointment.getDate()).add(appointment.getTime());
+                    } else {
+                        List<Time> timeList = new ArrayList<>();
+                        timeList.add(appointment.getTime());
+                        datesAndTime.put(appointment.getDate(), timeList);
+                    }
                 }
             }
         }
+
         return datesAndTime;
     }
-
 }
