@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Builder
 @NoArgsConstructor
@@ -19,9 +20,18 @@ public class Shop {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String name;
-    private String service;
     private String location;
+    private String address;
+    private String telephone;
+    private String openHour;
+    private String closeHour;
+    private float  rating;
+    private String dis;
+    private String service;
     private boolean partner;
+    private List<String> serviceOptions;
+    private List<String> cost;
+    private List<String> personnel;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "shop")
     @JsonIgnore
