@@ -32,6 +32,22 @@ public class Shop {
     private List<String> cost;
     private List<String> personnel;
 
+    public Shop(String name, String location, String address, String telephone, String openHour, String closeHour, float rating, String dis, String service, boolean partner, List<String> serviceOptions, List<String> cost, List<String> personnel) {
+        this.name = name;
+        this.location = location;
+        this.address = address;
+        this.telephone = telephone;
+        this.openHour = openHour;
+        this.closeHour = closeHour;
+        this.rating = rating;
+        this.dis = dis;
+        this.service = service;
+        this.partner = partner;
+        this.serviceOptions = serviceOptions;
+        this.cost = cost;
+        this.personnel = personnel;
+    }
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "shop")
     @JsonIgnore
     private List<CustomerData> customerData;

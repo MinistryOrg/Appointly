@@ -18,6 +18,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -231,9 +232,13 @@ public class UserControllerTest {
         HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
 
         // Create a shop for testing
-        Shop shop = new Shop(
-                1L, "shopname", "service", "location",
-                true, null, null);
+        Shop shop = new Shop("Test Shop",
+                "Test Location", "Test Address",
+                "+30 123 456789", "9:00", "18:00",
+                4.2f, "Test Description", "Test Service", true,
+                Arrays.asList("Service1", "Service2", "Service3"), Arrays.asList("Service1 20", "Service2 30", "Service3 15"),
+                Arrays.asList("Person1", "Person2", "Person3"));
+
         shopRepo.save(shop);
 
         // Make the HTTP request to your endpoint
