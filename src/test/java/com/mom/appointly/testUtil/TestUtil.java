@@ -44,8 +44,12 @@ public class TestUtil {
     }
 
     public Shop createShop() {
-
-        return new Shop("Test Shop", "Test Location", "Test Address", "+30 123 456789", "9:00", "18:00", 4.2f, "Test Description", "Test Service", true, Arrays.asList("Service1", "Service2", "Service3"), Arrays.asList("Service1 20", "Service2 30", "Service3 15"), Arrays.asList("Person1", "Person2", "Person3"));
+        return new Shop("Test Shop", "Test Location", "Test Address",
+                "+30 123 456789", "9:00", "18:00",
+                4.2f, "Test Description", "Test Service",
+                true, Arrays.asList("Service1", "Service2", "Service3"),
+                Arrays.asList(20, 30, 15),
+                Arrays.asList("Person1", "Person2", "Person3"));
     }
 
     public CustomerData createCustomerData(UserEntity user, Shop shop, Appointment appointment) {

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,11 +29,11 @@ public class Shop {
     private String dis;
     private String service;
     private boolean partner;
-    private List<String> serviceOptions;
-    private List<String> cost;
+    private List<String> servicesOptions;
+    private List<Integer> cost;
     private List<String> personnel;
 
-    public Shop(String name, String location, String address, String telephone, String openHour, String closeHour, float rating, String dis, String service, boolean partner, List<String> serviceOptions, List<String> cost, List<String> personnel) {
+    public Shop(String name, String location, String address, String telephone, String openHour, String closeHour, float rating, String dis, String service, boolean partner, List<String> servicesOptions, List<Integer> cost, List<String> personnel) {
         this.name = name;
         this.location = location;
         this.address = address;
@@ -43,7 +44,7 @@ public class Shop {
         this.dis = dis;
         this.service = service;
         this.partner = partner;
-        this.serviceOptions = serviceOptions;
+        this.servicesOptions = servicesOptions;
         this.cost = cost;
         this.personnel = personnel;
     }

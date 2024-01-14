@@ -77,7 +77,7 @@ public class AppointlyService {
     }
 
     public void cancelAppointment(Long id) {
-        Optional<Appointment> appointmentOptional = appointmentRepo.findById(id.longValue());
+        Optional<Appointment> appointmentOptional = appointmentRepo.findById(id);
 
         if (appointmentOptional.isPresent()) { // check if the appointment exist
             Appointment canceledAppointment = appointmentOptional.get();
