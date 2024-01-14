@@ -7,7 +7,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.sql.Time;
+import java.sql.Date;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
@@ -188,23 +190,26 @@ public class AppointlyService {
 
     public Object getDates(String shopName) {
         Optional<CustomerData> customerData = customerDataRepo.findByShopName(shopName);
-        Map<Date, List<Time>> datesAndTime = new HashMap<>();
+        Map<String, List<String>> datesAndTime = new HashMap<>();
 
         if (customerData.isPresent()) {
             LocalDate currentDate = LocalDate.now();
+            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
             for (Appointment appointment : customerData.get().getAppointments()) {
                 LocalDate appointmentDate = appointment.getDate().toLocalDate();
 
                 // Check if the appointment date is on or after the current date
                 if (!appointmentDate.isBefore(currentDate)) {
-                    if (datesAndTime.containsKey(appointment.getDate())) {
+                    String formattedDate = appointmentDate.format(dateFormatter);
+
+                    if (datesAndTime.containsKey(formattedDate)) {
                         // If the specific day already has an appointment, add to the key of the date
-                        datesAndTime.get(appointment.getDate()).add(appointment.getTime());
+                        datesAndTime.get(formattedDate).add(appointment.getTime().toString());
                     } else {
-                        List<Time> timeList = new ArrayList<>();
-                        timeList.add(appointment.getTime());
-                        datesAndTime.put(appointment.getDate(), timeList);
+                        List<String> timeList = new ArrayList<>();
+                        timeList.add(appointment.getTime().toString());
+                        datesAndTime.put(formattedDate, timeList);
                     }
                 }
             }
