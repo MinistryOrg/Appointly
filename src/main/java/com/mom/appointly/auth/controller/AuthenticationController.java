@@ -61,4 +61,9 @@ public class AuthenticationController {
         return new ResponseEntity<>(appointlyService.searchShopById(id), HttpStatus.OK);
     }
 
+    @GetMapping("/dates")
+    private ResponseEntity<?> getDates(@RequestParam String shopName) {
+        return new ResponseEntity<>(appointlyService.getDates(shopName), HttpStatus.OK);
+    }
+
 }

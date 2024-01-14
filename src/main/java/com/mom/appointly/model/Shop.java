@@ -32,6 +32,9 @@ public class Shop {
     private List<String> servicesOptions;
     private List<Integer> cost;
     private List<String> personnel;
+    private String backgroundImgPath;
+    private String shopImg;
+    private String serviceImg;
 
     public Shop(String name, String location, String address, String telephone, String openHour, String closeHour, float rating, String dis, String service, boolean partner, List<String> servicesOptions, List<Integer> cost, List<String> personnel) {
         this.name = name;
