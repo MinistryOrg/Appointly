@@ -27,14 +27,16 @@ public class Shop {
     private String closeHour;
     private float  rating;
     private String dis;
+    @Column(length = 1024)
+    private String about;
     private String service;
     private boolean partner;
     private List<String> servicesOptions;
     private List<Integer> cost;
     private List<String> personnel;
     private String backgroundImgPath;
-    private String shopImg;
-    private String serviceImg;
+    private List<String> shopImg;
+    private List<String> serviceImg;
 
     public Shop(String name, String location, String address, String telephone, String openHour, String closeHour, float rating, String dis, String service, boolean partner, List<String> servicesOptions, List<Integer> cost, List<String> personnel) {
         this.name = name;
