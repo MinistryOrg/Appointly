@@ -6,9 +6,9 @@ cors:
 
 spring:
   datasource:
-    url: jdbc:postgresql://containers-us-west-89.railway.app:6374/railway
+    url: postgresql://postgres:5aAD61ceC6ECCdbcA4651D6cAaDeEFAD@roundhouse.proxy.rlwy.net:52043/railway
     username: postgres
-    password: zWtnHt6AL9mg4E0HCAdy
+    password: 5aAD61ceC6ECCdbcA4651D6cAaDeEFAD
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -19,21 +19,3 @@ spring:
         format_sql: true
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
-#spring:
-#  datasource:
-#    url: jdbc:postgresql://localhost:5432/levart
-#    username: postgres
-#    password: sakalam18
-#    driver-class-name: org.postgresql.Driver
-#  jpa:
-#    hibernate:
-#      ddl-auto: create-drop
-#    show-sql: false
-#    properties:
-#      hibernate:
-#        format_sql: true
-#    database: postgresql
-#    database-platform: org.hibernate.dialect.PostgreSQLDialect
-
-
-
