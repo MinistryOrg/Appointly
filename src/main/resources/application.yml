@@ -6,16 +6,16 @@ cors:
 
 spring:
   datasource:
-    url: jdbc:postgresql://postgres:5aAD61ceC6ECCdbcA4651D6cAaDeEFAD@postgres.railway.internal:5432/railway
-    username: postgres
-    password: 5aAD61ceC6ECCdbcA4651D6cAaDeEFAD
-    driver-class-name: org.postgresql.Driver
+    url: jdbc:mysql://root:-54-BfeD1CB511fbe4DfEAEfcceFdh2D@roundhouse.proxy.rlwy.net:13757/railway
+    username: root
+    password: -54-BfeD1CB511fbe4DfEAEfcceFdh2D
+    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
     show-sql: false
     properties:
       hibernate:
         format_sql: true
-    database: postgresql
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQLDialect
