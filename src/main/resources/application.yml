@@ -6,7 +6,7 @@ cors:
 
 spring:
   datasource:
-    url: postgresql://postgres:5aAD61ceC6ECCdbcA4651D6cAaDeEFAD@roundhouse.proxy.rlwy.net:52043/railway
+    url: jdbc:postgresql://postgres:5aAD61ceC6ECCdbcA4651D6cAaDeEFAD@postgres.railway.internal:5432/railway
     username: postgres
     password: 5aAD61ceC6ECCdbcA4651D6cAaDeEFAD
     driver-class-name: org.postgresql.Driver
