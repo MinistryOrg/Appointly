@@ -26,7 +26,7 @@ public class Shop {
     private String openHour;
     private String closeHour;
     private float  rating;
-    private String dis;
+    private String description;
     @Column(length = 1024)
     private String about;
     private String service;
@@ -39,7 +39,7 @@ public class Shop {
     private List<String> serviceImg;
     private String shopLogo;
 
-    public Shop(String name, String location, String address, String telephone, String openHour, String closeHour, float rating, String dis, String service, boolean partner, List<String> servicesOptions, List<Integer> cost, List<String> personnel) {
+    public Shop(String name, String location, String address, String telephone, String openHour, String closeHour, float rating, String description, String service, boolean partner, List<String> servicesOptions, List<Integer> cost, List<String> personnel) {
         this.name = name;
         this.location = location;
         this.address = address;
@@ -47,7 +47,7 @@ public class Shop {
         this.openHour = openHour;
         this.closeHour = closeHour;
         this.rating = rating;
-        this.dis = dis;
+        this.description = description;
         this.service = service;
         this.partner = partner;
         this.servicesOptions = servicesOptions;
