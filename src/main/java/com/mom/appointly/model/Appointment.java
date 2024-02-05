@@ -1,6 +1,8 @@
 package com.mom.appointly.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,9 +26,14 @@ public class Appointment {
     private Date date;
     private Time time;
     private String personnel;
+    @Transient
+    private String userFirstname;
+    @Transient
+    private String userLastname;
 
     @ManyToOne
     @JoinColumn(name = "customer_data_id")
+    @JsonIgnore
     private CustomerData customerData;
     // constructor for the tests
     public Appointment(String service, float cost, Date date, Time time, String personnel) {
@@ -35,5 +42,13 @@ public class Appointment {
         this.date = date;
         this.time = time;
         this.personnel = personnel;
+    }
+
+    public String getUserFirstname() {
+        return customerData != null ? customerData.getUserEntity().getFirstname(): null;
+    }
+
+    public String getUserLastname() {
+        return customerData != null ? customerData.getUserEntity().getLastname(): null;
     }
 }
