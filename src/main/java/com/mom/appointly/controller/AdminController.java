@@ -43,4 +43,9 @@ public class AdminController {
     private ResponseEntity<?> getAppointments(@RequestParam String shopName) {
         return new ResponseEntity<>(appointlyService.getAppointments(shopName), HttpStatus.OK);
     }
+
+    @GetMapping("/getShop")
+    private ResponseEntity<?> getShop(@RequestParam String email) {
+        return new ResponseEntity<>(appointlyService.getShopByAdminDataEmail(email), HttpStatus.OK);
+    }
 }

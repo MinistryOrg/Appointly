@@ -218,4 +218,12 @@ public class AppointlyService {
         return datesAndTime;
     }
 
+    public Shop getShopByAdminDataEmail(String email){
+        Optional<Shop> shopOptional =  shopRepo.findByAdminData_UserEntity_Email(email);
+        if(shopOptional.isPresent()){
+            return shopOptional.get();
+        }
+        throw new RuntimeException("Shop doesn't exist");
+    }
+
 }

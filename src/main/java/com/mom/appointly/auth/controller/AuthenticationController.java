@@ -41,7 +41,6 @@ public class AuthenticationController {
         return ResponseEntity.ok(authenticationService.registerAdmin(request));
     }
 
-
     @PostMapping("/authenticate")
     public ResponseEntity<AuthenticationResponse> authenticated(
             @RequestBody AuthenticationRequest request
