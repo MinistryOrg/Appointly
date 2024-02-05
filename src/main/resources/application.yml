@@ -12,10 +12,26 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update 
     show-sql: false
     properties:
       hibernate:
         format_sql: true
     database: mysql
     database-platform: org.hibernate.dialect.MySQLDialect
+
+
+#  datasource:
+#    url: jdbc:postgresql://postgres:5aAD61ceC6ECCdbcA4651D6cAaDeEFAD@roundhouse.proxy.rlwy.net:52043/railway
+#    username: postgres
+#    password: 5aAD61ceC6ECCdbcA4651D6cAaDeEFAD
+#    driver-class-name: org.postgresql.Driver
+#  jpa:
+#    hibernate:
+#      ddl-auto: update
+#    show-sql: false
+#    properties:
+#      hibernate:
+#        format_sql: true
+#    database: postgresql
+#    database-platform: org.hibernate.dialect.PostgreSQLDialect
