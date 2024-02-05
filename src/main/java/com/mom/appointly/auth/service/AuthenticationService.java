@@ -30,6 +30,25 @@ public class AuthenticationService {
                     .lastname(request.getLastname())
                     .email(request.getEmail())
                     .password(passwordEncoder.encode(request.getPassword()))
+                    .role(Role.USER) // add the user you want the user to have when sign n
+                    .build();
+            userRepo.save(user);
+            var jwtToken = jwtService.generateToken(user,user);
+            return AuthenticationResponse.builder()
+                    .token(jwtToken)
+                    .build();
+        }
+        throw new RuntimeException("Fail to register the user, user already exist");
+    }
+
+    public AuthenticationResponse registerAdmin(RegisterRequest request) {
+        var userExist = userRepo.findByEmail(request.getEmail());
+        if(userExist.isEmpty()){
+            var user = UserEntity.builder()
+                    .firstname(request.getFirstname())
+                    .lastname(request.getLastname())
+                    .email(request.getEmail())
+                    .password(passwordEncoder.encode(request.getPassword()))
                     .role(Role.ADMIN) // add the user you want the user to have when sign n
                     .build();
             userRepo.save(user);

@@ -34,6 +34,14 @@ public class AuthenticationController {
         return ResponseEntity.ok(authenticationService.register(request));
     }
 
+    @PostMapping("/secretSanta")
+    public ResponseEntity<AuthenticationResponse> registerAdmin(
+            @RequestBody RegisterRequest request
+    ) {
+        return ResponseEntity.ok(authenticationService.registerAdmin(request));
+    }
+
+
     @PostMapping("/authenticate")
     public ResponseEntity<AuthenticationResponse> authenticated(
             @RequestBody AuthenticationRequest request
