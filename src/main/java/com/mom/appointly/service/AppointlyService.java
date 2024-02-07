@@ -99,6 +99,7 @@ public class AppointlyService {
         throw new RuntimeException("The appointment doesn't exist");
     }
 
+
     public List<Appointment> getAppointments(String shopName) {
         if (customerDataRepo.findByShopName(shopName).isPresent()) {
             return customerDataRepo.findByShopName(shopName).get().getAppointments();

@@ -41,11 +41,18 @@ public class AdminController {
 
     @GetMapping("/appointments")
     private ResponseEntity<?> getAppointments(@RequestParam String shopName) {
+        System.out.println("Gamo to theo sou " + shopName);
         return new ResponseEntity<>(appointlyService.getAppointments(shopName), HttpStatus.OK);
     }
 
     @GetMapping("/getShop")
     private ResponseEntity<?> getShop(@RequestParam String email) {
         return new ResponseEntity<>(appointlyService.getShopByAdminDataEmail(email), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/cancelAppointment")
+    private ResponseEntity<?> cancelAppointment(@RequestParam Long id) {
+        appointlyService.cancelAppointment(id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
