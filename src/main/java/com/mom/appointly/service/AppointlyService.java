@@ -42,7 +42,7 @@ public class AppointlyService {
         } else if (canMakeAppointment(shop,appointment)) { // if is the first appointment of the user
             List<Appointment> appointments = new ArrayList<>();
             appointments.add(appointment);
-            CustomerData customer = customerDataRepo.save(new CustomerData(userEntity, shop, appointments));
+            CustomerData customer = customerDataRepo.save(new CustomerData(1L,userEntity, shop, appointments));
             appointment.setCustomerData(customer);
             appointmentRepo.save(appointment);
             return customer;
