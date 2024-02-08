@@ -20,7 +20,7 @@ public class UserController {
                         ,HttpStatus.CREATED);
     }
 
-    @PutMapping("/editAppointment")
+    @PatchMapping("/editAppointment")
     private ResponseEntity<?> editAppointment(@RequestBody Appointment appointment) {
         return new ResponseEntity<>
                 (appointlyService.editAppointment(appointment),

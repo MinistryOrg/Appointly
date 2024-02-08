@@ -1,5 +1,6 @@
 package com.mom.appointly.controller;
 
+import com.mom.appointly.model.Appointment;
 import com.mom.appointly.model.Shop;
 import com.mom.appointly.service.AppointlyService;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,12 @@ public class AdminController {
         return new ResponseEntity<>(appointlyService.editShop(shopName, shop), HttpStatus.OK);
     }
 
+    @PatchMapping("/editAppointment")
+    private ResponseEntity<?> editAppointment(@RequestBody Appointment appointment) {
+        return new ResponseEntity<>
+                (appointlyService.editAppointment(appointment),
+                        HttpStatus.OK);
+    }
     @DeleteMapping("/deleteShop")
     private ResponseEntity<?> deleteShop(@RequestParam String shopName) {
         appointlyService.deleteShop(shopName);

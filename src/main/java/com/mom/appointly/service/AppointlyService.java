@@ -56,6 +56,7 @@ public class AppointlyService {
         if (optionalAppointment.isPresent()) {
             // check if the user that calls the api can edit the specific appointment
             canMakeChanges(optionalAppointment.get().getCustomerData().getUserEntity());
+            System.out.println(appointment);
             return appointmentRepo.save(appointment);
         }
 
