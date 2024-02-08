@@ -138,8 +138,9 @@ public class AppointlyService {
     public Shop editShop(ShopUpdateRequest shop) {
         Optional<Shop> shopOptional = shopRepo.findById(shop.getId());
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        checkIfNameAlreadyExist(shop.getName()); // check if a shop with the same name exist
+
         if (shopOptional.isPresent()) { // shop exist
+            checkIfNameAlreadyExist(shopOptional.get().getName(),shop.getName()); // check if a shop with the same name exist
             String ownerEmail = shopOptional.get().getAdminData().getUserEntity().getEmail();
             if (userEmail.equals(ownerEmail)) { // checks if is the owner of the shop
                 shopOptional.get().setCost(shop.getCost());
@@ -195,8 +196,8 @@ public class AppointlyService {
         throw new RuntimeException("Shop doesn't exist");
     }
 
-    public void checkIfNameAlreadyExist(String name) {
-        if (shopRepo.findByName(name).isPresent()) {
+    public void checkIfNameAlreadyExist(String originalName,String name) {
+        if (originalName.equals(name) || shopRepo.findByName(name).isPresent()) {
             throw new RuntimeException("Name already exist");
         }
     }
