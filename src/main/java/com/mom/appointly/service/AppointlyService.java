@@ -197,7 +197,7 @@ public class AppointlyService {
     }
 
     public void checkIfNameAlreadyExist(String originalName,String name) {
-        if (originalName.equals(name) || shopRepo.findByName(name).isPresent()) {
+        if (!originalName.equals(name) || shopRepo.findByName(name).isPresent()) {
             throw new RuntimeException("Name already exist");
         }
     }
