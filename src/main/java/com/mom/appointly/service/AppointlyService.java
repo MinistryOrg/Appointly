@@ -56,8 +56,9 @@ public class AppointlyService {
         if (optionalAppointment.isPresent()) {
             // check if the user that calls the api can edit the specific appointment
             canMakeChanges(optionalAppointment.get().getCustomerData().getUserEntity());
-            appointment.setCustomerData(optionalAppointment.get().getCustomerData());
-            return appointmentRepo.save(appointment);
+            optionalAppointment.get().setTime(appointment.getTime());
+            optionalAppointment.get().setDate(appointment.getDate());
+            return appointmentRepo.save(optionalAppointment.get());
         }
 
         throw new RuntimeException("Appointment doesn't exist"); // appointment doesn't exit for edit and returns 403 forbidden
