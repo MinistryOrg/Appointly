@@ -138,6 +138,8 @@ public class AppointlyService {
         if (shopOptional.isPresent()) { // shop exist
             String ownerEmail = shopOptional.get().getAdminData().getUserEntity().getEmail();
             if (userEmail.equals(ownerEmail)) { // checks if is the owner of the shop
+                shopRepo.delete(shopOptional.get());
+                shop.setAdminData(shopOptional.get().getAdminData());
                 shopRepo.save(shop);
                 return shop;
             }
