@@ -135,8 +135,8 @@ public class AppointlyService {
         }
     }
 
-    public Shop editShop(String shopName, ShopUpdateRequest shop) {
-        Optional<Shop> shopOptional = shopRepo.findByName(shopName);
+    public Shop editShop(ShopUpdateRequest shop) {
+        Optional<Shop> shopOptional = shopRepo.findById(shop.getId());
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         checkIfNameAlreadyExist(shop.getName()); // check if a shop with the same name exist
         if (shopOptional.isPresent()) { // shop exist

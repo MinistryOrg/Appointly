@@ -3,6 +3,7 @@ package com.mom.appointly.model;
 import java.util.List;
 
 public class ShopUpdateRequest {
+    private Long id;
     private String name;
     private String address;
     private String description;
@@ -10,13 +11,22 @@ public class ShopUpdateRequest {
     private List<Integer> cost;
     private List<String> servicesOptions;
 
-    public ShopUpdateRequest(String name, String address, String description, String telephone, List<Integer> cost, List<String> servicesOptions) {
+    public ShopUpdateRequest(Long id,String name, String address, String description, String telephone, List<Integer> cost, List<String> servicesOptions) {
+        this.id = id;
         this.name = name;
         this.address = address;
         this.description = description;
         this.telephone = telephone;
         this.cost = cost;
         this.servicesOptions = servicesOptions;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getName() {

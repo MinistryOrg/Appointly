@@ -31,8 +31,8 @@ public class AdminController {
     }
 
     @PatchMapping("/editShop")
-    public ResponseEntity<?> editShop(@RequestParam String shopName, @RequestBody ShopUpdateRequest shop) {
-        return new ResponseEntity<>(appointlyService.editShop(shopName, shop), HttpStatus.OK);
+    public ResponseEntity<?> editShop(@RequestBody ShopUpdateRequest shop) {
+        return new ResponseEntity<>(appointlyService.editShop(shop), HttpStatus.OK);
     }
 
     @PatchMapping("/editAppointment")
