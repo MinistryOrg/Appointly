@@ -135,17 +135,21 @@ public class AppointlyService {
         }
     }
 
-    public Shop editShop(String shopName, Shop shop) {
+    public Shop editShop(String shopName, ShopUpdateRequest shop) {
         Optional<Shop> shopOptional = shopRepo.findByName(shopName);
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         checkIfNameAlreadyExist(shop.getName()); // check if a shop with the same name exist
         if (shopOptional.isPresent()) { // shop exist
             String ownerEmail = shopOptional.get().getAdminData().getUserEntity().getEmail();
             if (userEmail.equals(ownerEmail)) { // checks if is the owner of the shop
-                shopRepo.delete(shopOptional.get());
-                shop.setAdminData(shopOptional.get().getAdminData());
-                shopRepo.save(shop);
-                return shop;
+                shopOptional.get().setCost(shop.getCost());
+                shopOptional.get().setServicesOptions(shop.getServicesOptions());
+                shopOptional.get().setName(shop.getName());
+                shopOptional.get().setAddress(shop.getAddress());
+                shopOptional.get().setDescription(shop.getDescription());
+                shopOptional.get().setTelephone(shop.getTelephone());
+                shopRepo.save(shopOptional.get());
+                return shopOptional.get();
             }
         }
         throw new RuntimeException("Edit failed");

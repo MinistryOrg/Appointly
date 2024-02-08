@@ -2,6 +2,7 @@ package com.mom.appointly.controller;
 
 import com.mom.appointly.model.Appointment;
 import com.mom.appointly.model.Shop;
+import com.mom.appointly.model.ShopUpdateRequest;
 import com.mom.appointly.service.AppointlyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -30,7 +31,7 @@ public class AdminController {
     }
 
     @PatchMapping("/editShop")
-    public ResponseEntity<?> editShop(@RequestParam String shopName, @RequestBody Shop shop) {
+    public ResponseEntity<?> editShop(@RequestParam String shopName, @RequestBody ShopUpdateRequest shop) {
         return new ResponseEntity<>(appointlyService.editShop(shopName, shop), HttpStatus.OK);
     }
 
