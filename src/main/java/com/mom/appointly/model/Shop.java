@@ -39,22 +39,6 @@ public class Shop {
     private List<String> serviceImg;
     private String shopLogo;
 
-    public Shop(String name, String location, String address, String telephone, String openHour, String closeHour, float rating, String description, String service, boolean partner, List<String> servicesOptions, List<Integer> cost, List<String> personnel) {
-        this.name = name;
-        this.location = location;
-        this.address = address;
-        this.telephone = telephone;
-        this.openHour = openHour;
-        this.closeHour = closeHour;
-        this.rating = rating;
-        this.description = description;
-        this.service = service;
-        this.partner = partner;
-        this.servicesOptions = servicesOptions;
-        this.cost = cost;
-        this.personnel = personnel;
-    }
-
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "shop")
     @JsonIgnore
     private List<CustomerData> customerData;

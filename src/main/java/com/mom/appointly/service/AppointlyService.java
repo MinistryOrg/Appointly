@@ -5,6 +5,7 @@ import com.mom.appointly.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Time;
 import java.sql.Date;
@@ -30,52 +31,55 @@ public class AppointlyService {
     public CustomerData makeAppointment(String shopName, Appointment appointment) {
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName(); // get the email of the user that is connected
         UserEntity userEntity = userRepo.findByEmail(userEmail).get();
-        Shop shop = shopRepo.findByName(shopName).get();
-        Optional<CustomerData> customerData = customerDataRepo.findByUserEntityAndShop(userEntity, shop);
-        // check if the user already have make an appointment in this shop to add it to the list
-        if (customerData.isPresent() &&
-               canMakeAppointment(shop,appointment)) {
-            appointment.setCustomerData(customerData.get());
-            appointmentRepo.save(appointment);
-            customerData.get().getAppointments().add(appointment);
-            return customerDataRepo.save(customerData.get());
-        } else if (canMakeAppointment(shop,appointment)) { // if is the first appointment of the user
-            List<Appointment> appointments = new ArrayList<>();
-            appointments.add(appointment);
-            CustomerData customer = customerDataRepo.save(new CustomerData(1L,userEntity, shop, appointments));
-            appointment.setCustomerData(customer);
-            appointmentRepo.save(appointment);
-            return customer;
+        Optional<Shop> shop = shopRepo.findByName(shopName);
+        if (shop.isPresent()) {
+            Optional<CustomerData> customerData = customerDataRepo.findByUserEntityAndShop(userEntity, shop.get());
+            // check if the user already have make an appointment in this shop to add it to the list
+            if (customerData.isPresent() &&
+                    canMakeAppointment(shop.get(), appointment)) {
+                appointment.setCustomerData(customerData.get());
+                appointmentRepo.save(appointment);
+                customerData.get().getAppointments().add(appointment);
+                return customerDataRepo.save(customerData.get());
+            } else if (canMakeAppointment(shop.get(), appointment)) { // if is the first appointment of the user
+                List<Appointment> appointments = new ArrayList<>();
+                appointments.add(appointment);
+                CustomerData customer = customerDataRepo.save(new CustomerData(1L, userEntity, shop.get(), appointments));
+                appointment.setCustomerData(customer);
+                appointmentRepo.save(appointment);
+                return customer;
+            }
+        } else {
+            throw new RuntimeException("Shop doesn't exist");
         }
         throw new RuntimeException("Appointment already exist"); // it means the appointment is already exist and returns 403 forbidden
 
-        }
+    }
 
+    @Transactional
     public Appointment editAppointment(Appointment appointment) {
         Optional<Appointment> optionalAppointment = appointmentRepo.findById(appointment.getId());
         if (optionalAppointment.isPresent()) {
-            // check if the user that calls the api can edit the specific appointment
-            canMakeChanges(optionalAppointment.get().getCustomerData().getUserEntity());
-            optionalAppointment.get().setTime(appointment.getTime());
-            optionalAppointment.get().setDate(appointment.getDate());
-            return appointmentRepo.save(optionalAppointment.get());
+            Appointment existingAppointment = optionalAppointment.get();
+            canMakeChanges(existingAppointment.getCustomerData().getUserEntity());
+            existingAppointment.setTime(appointment.getTime());
+            existingAppointment.setDate(appointment.getDate());
+            return appointmentRepo.save(existingAppointment);
         }
-
-        throw new RuntimeException("Appointment doesn't exist"); // appointment doesn't exit for edit and returns 403 forbidden
+        throw new RuntimeException("Appointment doesn't exist");
     }
-
-    public void canMakeChanges(UserEntity userEntity){
+    public void canMakeChanges(UserEntity userEntity) {
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         UserEntity connectedUser = userRepo.findByEmail(userEmail).get();
         // if the user doesn't own the change he wants to make or is not the admin throws exception
-        if(!userEntity.equals(connectedUser) || userEntity.getRole().equals(Role.USER)){
+        if (!userEntity.equals(connectedUser) || userEntity.getRole().equals(Role.USER)) {
             throw new RuntimeException("You don't have the permissions");
         }
     }
 
-    public boolean canMakeAppointment(Shop shop, Appointment appointment){
+    public boolean canMakeAppointment(Shop shop, Appointment appointment) {
         return customerDataRepo.findByShopAndAppointmentsDateAndAppointmentsTime(shop,
-                appointment.getDate(),
+                        appointment.getDate(),
                         appointment.getTime())
                 .isEmpty();
     }
@@ -115,7 +119,7 @@ public class AppointlyService {
         Optional<AdminData> adminData = adminDataRepo.findByUserEntity(userEntity);
 
         checkIfNameAlreadyExist(shop.getName());
-        
+
         if (adminData.isPresent()) { // if the admin already have a shop in the app add it the new one to the list
             adminData.get().getShops().add(shop);
             shop.setAdminData(adminData.get());
@@ -166,9 +170,9 @@ public class AppointlyService {
         }
     }
 
-    public Shop searchShopById(Long id){
+    public Shop searchShopById(Long id) {
         Optional<Shop> shopOptional = shopRepo.findById(id);
-        if(shopOptional.isPresent()){
+        if (shopOptional.isPresent()) {
             return shopOptional.get();
         }
         throw new RuntimeException(" The shop doesn't exist");
@@ -179,9 +183,9 @@ public class AppointlyService {
         return adminDataRepo.findByUserEntityEmail(userEmail).get().getShops();
     }
 
-    public List<Shop> searchByLocationAndService(String location, String service){
-        List <Shop> shopList =  shopRepo.findShopByLocationAndService(location, service);
-        if(!shopList.isEmpty()){
+    public List<Shop> searchByLocationAndService(String location, String service) {
+        List<Shop> shopList = shopRepo.findShopByLocationAndService(location, service);
+        if (!shopList.isEmpty()) {
             return shopList;
         }
         throw new RuntimeException("Shop doesn't exist");
@@ -223,9 +227,9 @@ public class AppointlyService {
         return datesAndTime;
     }
 
-    public Shop getShopByAdminDataEmail(String email){
-        Optional<Shop> shopOptional =  shopRepo.findByAdminData_UserEntity_Email(email);
-        if(shopOptional.isPresent()){
+    public Shop getShopByAdminDataEmail(String email) {
+        Optional<Shop> shopOptional = shopRepo.findByAdminData_UserEntity_Email(email);
+        if (shopOptional.isPresent()) {
             return shopOptional.get();
         }
         throw new RuntimeException("Shop doesn't exist");

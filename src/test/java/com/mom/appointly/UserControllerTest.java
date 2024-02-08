@@ -9,6 +9,7 @@ import com.mom.appointly.repository.CustomerDataRepo;
 import com.mom.appointly.repository.ShopRepo;
 import com.mom.appointly.repository.UserRepo;
 import com.mom.appointly.testUtil.TestUtil;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,6 +19,9 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.sql.Date;
+import java.sql.Time;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -53,7 +57,13 @@ public class UserControllerTest {
         Appointment appointment = testUtil.createAppointment();
         // create shop to connect it with the appointment
         Shop shop = testUtil.createShop();
+
         shopRepo.save(shop);
+
+        if (shopRepo.findByName(shop.getName()).isPresent()){
+            System.out.println("Shop exist");
+        }
+
         HttpHeaders headers = new HttpHeaders();
         // get a valid authentication token
         headers.setBearerAuth(testUtil.getToken(user.getEmail(), "password123", restTemplate));
@@ -69,10 +79,7 @@ public class UserControllerTest {
         // Verify the response status
         assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());
         // remove the test data from the database
-        customerDataRepo.deleteAll(); // delete all the customer data from the test database
-        userRepo.delete(user);
-        shopRepo.delete(shop);
-        appointmentRepo.delete(appointment);
+        cleanupTestData();
     }
 
     @Test
@@ -95,9 +102,10 @@ public class UserControllerTest {
         // Save the appointment with customerData to the database
         initialAppointment.setCustomerData(customerData);
         appointmentRepo.save(initialAppointment);
+
         // Update the appointment details
-        initialAppointment.setService("newService");
-        initialAppointment.setCost(60.0f);
+        initialAppointment.setTime(new Time(14,30, 0));
+        initialAppointment.setDate(new Date(2024,2,8));
 
         HttpHeaders headers = new HttpHeaders();
         // Get a valid authentication token
@@ -118,14 +126,11 @@ public class UserControllerTest {
         Appointment updatedAppointment = appointmentRepo.findById(initialAppointment.getId()).orElseThrow();
 
         // Assertions on the updatedAppointment values
-        assertEquals("newService", updatedAppointment.getService());
-        assertEquals(60.0f, updatedAppointment.getCost());
+        assertEquals(new Time(14,30, 0), updatedAppointment.getTime());
+        assertEquals(new Date(2024,2,8), updatedAppointment.getDate());
 
         // Remove the test data from the database
-        customerDataRepo.delete(customerData);
-        appointmentRepo.delete(updatedAppointment);
-        userRepo.delete(user);
-        shopRepo.delete(shop);
+        cleanupTestData();
     }
 
 
@@ -174,10 +179,7 @@ public class UserControllerTest {
         assertEquals(1, shopRepo.count());
 
         // Remove the test data from the database
-        customerDataRepo.delete(customerData);
-        appointmentRepo.delete(initialAppointment);
-        userRepo.delete(user);
-        shopRepo.delete(shop);
+        cleanupTestData();
     }
 
     @Test
@@ -209,9 +211,8 @@ public class UserControllerTest {
         // Verify the response status
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
 
-        // Remove the test data from the database (if needed)
-        userRepo.delete(user);
-        shopRepo.delete(shop);
+        // Remove the test data from the database
+        cleanupTestData();
     }
 
 
@@ -250,9 +251,18 @@ public class UserControllerTest {
         List<Shop> shops = responseEntity.getBody();
         assertEquals(1, shops.size());  // expected one shop let's see if is correct
 
-        // Remove the test data from the database (if needed)
-        userRepo.delete(user);
-        shopRepo.delete(shop);
+        // Remove the test data from the database
+        cleanupTestData();
     }
+
+    @AfterEach
+    public void cleanupTestData() {
+        // Clean up test data after each test execution
+        customerDataRepo.deleteAll();
+        appointmentRepo.deleteAll();
+        userRepo.deleteAll();
+        shopRepo.deleteAll();
+    }
+
 
 }

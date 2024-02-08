@@ -38,18 +38,39 @@ public class TestUtil {
     }
 
     public Appointment createAppointment() {
-        return new Appointment(
-                "haircut", 50.0f, new Date(System.currentTimeMillis())
-                , new Time(System.currentTimeMillis()), "Stylish");
+       return new Appointment(
+                "Haircut",
+                50.0f,
+                new Date(System.currentTimeMillis()), // Current date
+                new Time(System.currentTimeMillis()), // Current time
+                "John Doe",
+                "Alice",
+                "Smith"
+        );
     }
 
     public Shop createShop() {
-        return new Shop("Test Shop", "Test Location", "Test Address",
-                "+30 123 456789", "9:00", "18:00",
-                4.2f, "Test Description", "Test Service",
-                true, Arrays.asList("Service1", "Service2", "Service3"),
-                Arrays.asList(20, 30, 15),
-                Arrays.asList("Person1", "Person2", "Person3"));
+        return new Shop(
+                1L,
+                "shopname",
+                "location",
+                "Somewhere",
+                "555-555-5555",
+                "09:00 AM",
+                "06:00 PM",
+                4.5f,
+                "Example Description",
+                "about, about.",
+                "service",
+                true,
+                Arrays.asList("Option 1", "Option 2", "Option 3"),
+                Arrays.asList(10, 20, 30),
+                Arrays.asList("Person 1", "Person 2", "Person 3"),
+                "example_background.jpg",
+                Arrays.asList("shop_img1.jpg", "shop_img2.jpg"),
+                Arrays.asList("service_img1.jpg", "service_img2.jpg"),
+                "shop_logo.jpg", null, null
+        );
     }
 
     public CustomerData createCustomerData(UserEntity user, Shop shop, Appointment appointment) {
