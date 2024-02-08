@@ -118,7 +118,7 @@ public class AppointlyService {
         UserEntity userEntity = userRepo.findByEmail(userEmail).get();
         Optional<AdminData> adminData = adminDataRepo.findByUserEntity(userEntity);
 
-        checkIfNameAlreadyExist(shop.getName());
+        checkIfNameAlreadyExist("fail",shop.getName());
 
         if (adminData.isPresent()) { // if the admin already have a shop in the app add it the new one to the list
             adminData.get().getShops().add(shop);
