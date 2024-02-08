@@ -67,7 +67,7 @@ public class AppointlyService {
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         UserEntity connectedUser = userRepo.findByEmail(userEmail).get();
         // if the user doesn't own the change he wants to make or is not the admin throws exception
-        if(!userEntity.equals(connectedUser) || userEntity.getRole().equals(Role.ADMIN)){
+        if(!userEntity.equals(connectedUser) || userEntity.getRole().equals(Role.USER)){
             throw new RuntimeException("You don't have the permissions");
         }
     }
