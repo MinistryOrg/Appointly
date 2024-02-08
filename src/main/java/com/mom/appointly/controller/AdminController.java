@@ -41,7 +41,6 @@ public class AdminController {
 
     @GetMapping("/appointments")
     private ResponseEntity<?> getAppointments(@RequestParam String shopName) {
-        System.out.println("Gamo to theo sou " + shopName);
         return new ResponseEntity<>(appointlyService.getAppointments(shopName), HttpStatus.OK);
     }
 
