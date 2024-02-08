@@ -118,7 +118,7 @@ public class AppointlyService {
         UserEntity userEntity = userRepo.findByEmail(userEmail).get();
         Optional<AdminData> adminData = adminDataRepo.findByUserEntity(userEntity);
 
-        checkIfNameAlreadyExist("fail",shop.getName());
+        checkIfNameAlreadyExist(shop.getName());
 
         if (adminData.isPresent()) { // if the admin already have a shop in the app add it the new one to the list
             adminData.get().getShops().add(shop);
@@ -196,8 +196,8 @@ public class AppointlyService {
         throw new RuntimeException("Shop doesn't exist");
     }
 
-    public void checkIfNameAlreadyExist(String originalName,String name) {
-        if (!originalName.equals(name) || shopRepo.findByName(name).isPresent()) {
+    public void checkIfNameAlreadyExist(String name) {
+        if (shopRepo.findByName(name).isPresent()) {
             throw new RuntimeException("Name already exist");
         }
     }
