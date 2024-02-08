@@ -140,7 +140,7 @@ public class AppointlyService {
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
 
         if (shopOptional.isPresent()) { // shop exist
-            checkIfNameAlreadyExist(shopOptional.get().getName(),shop.getName()); // check if a shop with the same name exist
+            //checkIfNameAlreadyExist(shopOptional.get().getName(),shop.getName()); // check if a shop with the same name exist
             String ownerEmail = shopOptional.get().getAdminData().getUserEntity().getEmail();
             if (userEmail.equals(ownerEmail)) { // checks if is the owner of the shop
                 shopOptional.get().setCost(shop.getCost());
