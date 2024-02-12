@@ -105,6 +105,7 @@ public class AppointlyService {
     }
 
 
+
     public List<Appointment> getAppointments(String shopName) {
         // Fetch the shop by name
         Optional<Shop> shopOptional = shopRepo.findByName(shopName);
@@ -122,7 +123,6 @@ public class AppointlyService {
             throw new RuntimeException("Shop doesn't exist");
         }
     }
-
 
     public void addShop(Shop shop) {
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -213,14 +213,12 @@ public class AppointlyService {
     }
 
     public Object getDates(String shopName) {
-        Optional<CustomerData> customerData = customerDataRepo.findByShopName(shopName);
         Map<String, List<String>> datesAndTime = new HashMap<>();
 
-        if (customerData.isPresent()) {
             LocalDate currentDate = LocalDate.now();
             DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-            for (Appointment appointment : customerData.get().getAppointments()) {
+            for (Appointment appointment : getAppointments(shopName)) {
                 LocalDate appointmentDate = appointment.getDate().toLocalDate();
 
                 // Check if the appointment date is on or after the current date
@@ -237,8 +235,6 @@ public class AppointlyService {
                     }
                 }
             }
-        }
-
         return datesAndTime;
     }
 
