@@ -43,7 +43,7 @@ public class UserControllerTest {
     private CustomerDataRepo customerDataRepo;
     @Autowired
     private PasswordEncoder passwordEncoder;
-    TestUtil testUtil = new TestUtil();
+    private TestUtil testUtil = new TestUtil();
 
     @Test
     public void testMakeAppointmentIntegration() {

@@ -56,7 +56,6 @@ public class AppointlyService {
 
     }
 
-    @Transactional
     public Appointment editAppointment(Appointment appointment) {
         Optional<Appointment> optionalAppointment = appointmentRepo.findById(appointment.getId());
         if (optionalAppointment.isPresent()) {
@@ -107,11 +106,23 @@ public class AppointlyService {
 
 
     public List<Appointment> getAppointments(String shopName) {
-        if (customerDataRepo.findByShopName(shopName).isPresent()) {
-            return customerDataRepo.findByShopName(shopName).get().getAppointments();
+        // Fetch the shop by name
+        Optional<Shop> shopOptional = shopRepo.findByName(shopName);
+        // Check if the shop exists
+        if (shopOptional.isPresent()) {
+            Shop shop = shopOptional.get();
+            List<CustomerData> customerDataList = customerDataRepo.findByShop(shop);
+            List<Appointment> appointments = new ArrayList<>();
+            // Iterate through customer data and collect appointments
+            for (CustomerData customerData : customerDataList) {
+                appointments.addAll(customerData.getAppointments());
+            }
+            return appointments;
+        } else {
+            throw new RuntimeException("Shop doesn't exist");
         }
-        throw new RuntimeException("Shop doesn't exit");
     }
+
 
     public void addShop(Shop shop) {
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -140,7 +151,6 @@ public class AppointlyService {
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
 
         if (shopOptional.isPresent()) { // shop exist
-            //checkIfNameAlreadyExist(shopOptional.get().getName(),shop.getName()); // check if a shop with the same name exist
             String ownerEmail = shopOptional.get().getAdminData().getUserEntity().getEmail();
             if (userEmail.equals(ownerEmail)) { // checks if is the owner of the shop
                 shopOptional.get().setCost(shop.getCost());

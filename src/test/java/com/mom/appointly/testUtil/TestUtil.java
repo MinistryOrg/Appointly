@@ -49,6 +49,18 @@ public class TestUtil {
         );
     }
 
+    public Appointment createAppointment(String name) {
+        return new Appointment(
+                "Haircut",
+                50.0f,
+                new Date(System.currentTimeMillis()), // Current date
+                new Time(System.currentTimeMillis()), // Current time
+                name,
+                "Alice",
+                "Smith"
+        );
+    }
+
     public Shop createShop() {
         return new Shop(
                 1L,
