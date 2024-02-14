@@ -25,11 +25,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.sql.Date;
 import java.sql.Time;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -75,22 +77,22 @@ public class AppointlyServiceTest {
 
     @Test
     public void testCanMakeChangesSuccess() {
-        // Mock the connected user
+        // given
         UserEntity connectedUser = new UserEntity();
         connectedUser.setId(1L);
         connectedUser.setEmail("connected@example.com");
         connectedUser.setRole(Role.ADMIN);
 
-        // Mock the UserRepository
+        // when
         when(userRepo.findByEmail("connected@example.com")).thenReturn(Optional.of(connectedUser));
 
-        // Test the method
+        // then
         assertThrows(RuntimeException.class, () -> appointlyService.canMakeChanges(connectedUser));
     }
 
     @Test
     public void testCanMakeChangesNotAllowed() {
-        // Mock the userEntity
+        // given
         UserEntity userEntity = new UserEntity();
         userEntity.setId(2L);
         userEntity.setEmail("user@example.com");
@@ -102,10 +104,10 @@ public class AppointlyServiceTest {
         connectedUser.setEmail("connected@example.com");
         connectedUser.setRole(Role.USER); // Set the role to USER, not ADMIN
 
-        // return the connected user that is not admin or the owner to make changes
+        // when return the connected user that is not admin or the owner to make changes
         when(userRepo.findByEmail("connected@example.com")).thenReturn(Optional.of(connectedUser));
 
-        // pass different user that is not admin or the owner
+        // then pass different user that is not admin or the owner
         assertThrows(RuntimeException.class, () -> appointlyService.canMakeChanges(userEntity));
     }
 
@@ -115,6 +117,7 @@ public class AppointlyServiceTest {
 
     @Test
     public void testMakeAppointmentCustomerDataExist(){
+        // given
         UserEntity userEntity = testUtil.createUser();
         Shop shop = testUtil.createShop();
         Appointment appointment = testUtil.createAppointment();
@@ -142,6 +145,7 @@ public class AppointlyServiceTest {
 
     @Test
     public void testMakeAppointmentFirstAppointment(){
+        // given
         UserEntity userEntity = testUtil.createUser();
         Shop shop = testUtil.createShop();
         Appointment appointment = testUtil.createAppointment();
@@ -169,6 +173,7 @@ public class AppointlyServiceTest {
 
     @Test
     public void testMakeAppointmentShopNotExist() {
+        // given
         UserEntity userEntity = testUtil.createUser();
         Shop shop = testUtil.createShop();
         Appointment appointment = testUtil.createAppointment();
@@ -183,14 +188,17 @@ public class AppointlyServiceTest {
     // end of makeAppointment
 
     // start of editAppointment
+
     @Test
     public void testEditAppointmentExistsAndChangesAllowed() {
+        // given
         UserEntity userEntity = testUtil.createUser();
         Shop shop = testUtil.createShop();
         Appointment appointment = testUtil.createAppointment();
         CustomerData customerData = testUtil.createCustomerData(userEntity, shop, appointment);
         appointment.setCustomerData(customerData);
-        Appointment newAppointment =testUtil.createAppointment();
+        Appointment newAppointment = testUtil.createAppointment();
+
         newAppointment.setId(1L);
         newAppointment.setDate(Date.valueOf("2024-02-14"));
         newAppointment.setTime(Time.valueOf("11:00:00"));
@@ -210,7 +218,7 @@ public class AppointlyServiceTest {
 
     @Test
     public void testEditAppointmentExistsButChangesNotAllowed() {
-        // Arrange
+        // given
         UserEntity userEntity = testUtil.createUser();
         userEntity.setRole(Role.USER);
         Shop shop = testUtil.createShop();
@@ -224,15 +232,14 @@ public class AppointlyServiceTest {
         // when
         when(appointmentRepo.findById(existingAppointment.getId())).thenReturn(Optional.of(existingAppointment));
         when(userRepo.findByEmail(Mockito.anyString())).thenReturn(Optional.of(userEntity));
-
+        // then
         RuntimeException exception = assertThrows(RuntimeException.class, () -> appointlyService.editAppointment(newAppointment));
         assertEquals("You don't have the permissions", exception.getMessage());
-        // then
-        assertThrows(RuntimeException.class, () -> appointlyService.editAppointment(newAppointment));
     }
 
     @Test
     public void testEditAppointmentDoesNotExist() {
+        // given
         Appointment newAppointment = new Appointment();
         newAppointment.setId(1L);
         // when
@@ -240,9 +247,44 @@ public class AppointlyServiceTest {
         // then
         assertThrows(RuntimeException.class, () -> appointlyService.editAppointment(newAppointment));
     }
+
     // end of editAppointment
 
+    // start of cancelAppointment
 
+    @Test
+    public void testCancelAppointmentExistsAndChangesAllowed() {
+        // given
+        UserEntity userEntity = testUtil.createUser();
+        Shop shop = testUtil.createShop();
+        Appointment appointment = testUtil.createAppointment();
+        CustomerData customerData = testUtil.createCustomerData(userEntity, shop, appointment);
+        appointment.setCustomerData(customerData);
+        given(appointmentRepo.findById(appointment.getId()))
+                .willReturn(Optional.of(appointment));
+        // when
+        when(userRepo.findByEmail(Mockito.anyString())).thenReturn(Optional.of(userEntity));
+        when(appointmentRepo.findById(appointment.getId())).thenReturn(Optional.of(appointment));
+        when(customerDataRepo.save(customerData)).thenReturn(customerData);
+        // act
+        appointlyService.cancelAppointment(appointment.getId());
+        // then
+        verify(appointmentRepo).delete(appointment);
+        verify(customerDataRepo).delete(customerData);
+    }
+
+    @Test
+    public void testCancelAppointmentDoesNotExist() {
+        // given
+        long nonExistingAppointmentId = 100L;
+
+        // then
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> appointlyService.cancelAppointment(nonExistingAppointmentId));
+        // when
+        assertEquals("The appointment doesn't exist", exception.getMessage());
+    }
+
+    // end of cancelAppointment
 
 
 
