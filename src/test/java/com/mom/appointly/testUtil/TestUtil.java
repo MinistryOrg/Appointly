@@ -37,61 +37,76 @@ public class TestUtil {
                 .build();
     }
 
-    public Appointment createAppointment() {
-       return new Appointment(
-                "Haircut",
-                50.0f,
-                new Date(System.currentTimeMillis()), // Current date
-                new Time(System.currentTimeMillis()), // Current time
-                "John Doe",
-                "Alice",
-                "Smith"
-        );
+    public UserEntity createUser() {
+        return UserEntity.builder()
+                .firstname("mia")
+                .lastname("wallace")
+                .email("mia@gmail.com")
+                .password("password123")
+                .role(Role.ADMIN)
+                .build();
     }
 
-    public Appointment createAppointment(String name) {
-        return new Appointment(
-                "Haircut",
-                50.0f,
-                new Date(System.currentTimeMillis()), // Current date
-                new Time(System.currentTimeMillis()), // Current time
-                name,
-                "Alice",
-                "Smith"
-        );
+    public Appointment createAppointment() {
+        return Appointment.builder()
+                .id(1L)
+                .service("Haircut")
+                .cost(50.0f)
+                .date(Date.valueOf("2024-02-13"))
+                .time(Time.valueOf("10:00:00"))
+                .personnel("Barber")
+                .userFirstname("John")
+                .userLastname("Doe")
+                .customerData(null)
+                .build();
     }
+
 
     public Shop createShop() {
-        return new Shop(
-                1L,
-                "shopname",
-                "location",
-                "Somewhere",
-                "555-555-5555",
-                "09:00 AM",
-                "06:00 PM",
-                4.5f,
-                "Example Description",
-                "about, about.",
-                "service",
-                true,
-                Arrays.asList("Option 1", "Option 2", "Option 3"),
-                Arrays.asList(10, 20, 30),
-                Arrays.asList("Person 1", "Person 2", "Person 3"),
-                "example_background.jpg",
-                Arrays.asList("shop_img1.jpg", "shop_img2.jpg"),
-                Arrays.asList("service_img1.jpg", "service_img2.jpg"),
-                "shop_logo.jpg", null, null
-        );
+        return Shop.builder()
+                .id(1L)
+                .name("shopname")
+                .location("location")
+                .address("Somewhere")
+                .telephone("555-555-5555")
+                .openHour("09:00 AM")
+                .closeHour("06:00 PM")
+                .rating(4.5f)
+                .description("Example Description")
+                .about("about, about.")
+                .service("service")
+                .partner(true)
+                .servicesOptions(Arrays.asList("Option 1", "Option 2", "Option 3"))
+                .cost(Arrays.asList(10, 20, 30))
+                .personnel(Arrays.asList("Person 1", "Person 2", "Person 3"))
+                .backgroundImgPath("example_background.jpg")
+                .shopImg(Arrays.asList("shop_img1.jpg", "shop_img2.jpg"))
+                .serviceImg(Arrays.asList("service_img1.jpg", "service_img2.jpg"))
+                .shopLogo("shop_logo.jpg")
+                .build();
     }
 
     public CustomerData createCustomerData(UserEntity user, Shop shop, Appointment appointment) {
+        List<Appointment> appointments = new ArrayList<>();
+        appointments.add(appointment);
+
+        return CustomerData.builder()
+                .id(1L)
+                .userEntity(user)
+                .shop(shop)
+                .appointments(appointments)
+                .build();
+    }
+
+    public CustomerData createCustomerData(Long id,UserEntity user, Shop shop, Appointment appointment) {
         List<Appointment> appointmentList = new ArrayList<>();
         appointmentList.add(appointment);
-        return new CustomerData(
-                user,
-                shop,
-                appointmentList
-        );
+
+        return CustomerData.builder()
+                .id(1L)
+                .userEntity(user)
+                .shop(shop)
+                .appointments(appointmentList)
+                .build();
     }
 }

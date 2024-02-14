@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @Builder
 @NoArgsConstructor
@@ -29,9 +30,15 @@ public class CustomerData {
     @OneToMany(mappedBy = "customerData", cascade = CascadeType.ALL)
     private List<Appointment> appointments;
 
-    public CustomerData(UserEntity userEntity, Shop shop, List<Appointment> appointment) {
-        this.userEntity = userEntity;
-        this.shop = shop;
-        this.appointments = appointment;
+    @Override // for the tests
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CustomerData that = (CustomerData) o;
+        return Objects.equals(id, that.id) &&
+                Objects.equals(userEntity, that.userEntity) &&
+                Objects.equals(shop, that.shop) &&
+                Objects.equals(((CustomerData) o).appointments, that.appointments);
     }
+
 }

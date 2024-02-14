@@ -48,12 +48,12 @@ public class AppointlyService {
                 appointment.setCustomerData(customer);
                 appointmentRepo.save(appointment);
                 return customer;
+            } else {
+                throw new RuntimeException("Appointment already exist"); // it means the appointment is already exist and returns 403 forbidden
             }
         } else {
             throw new RuntimeException("Shop doesn't exist");
         }
-        throw new RuntimeException("Appointment already exist"); // it means the appointment is already exist and returns 403 forbidden
-
     }
 
     public Appointment editAppointment(Appointment appointment) {
@@ -215,26 +215,26 @@ public class AppointlyService {
     public Object getDates(String shopName) {
         Map<String, List<String>> datesAndTime = new HashMap<>();
 
-            LocalDate currentDate = LocalDate.now();
-            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate currentDate = LocalDate.now();
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-            for (Appointment appointment : getAppointments(shopName)) {
-                LocalDate appointmentDate = appointment.getDate().toLocalDate();
+        for (Appointment appointment : getAppointments(shopName)) {
+            LocalDate appointmentDate = appointment.getDate().toLocalDate();
 
-                // Check if the appointment date is on or after the current date
-                if (!appointmentDate.isBefore(currentDate)) {
-                    String formattedDate = appointmentDate.format(dateFormatter);
+            // Check if the appointment date is on or after the current date
+            if (!appointmentDate.isBefore(currentDate)) {
+                String formattedDate = appointmentDate.format(dateFormatter);
 
-                    if (datesAndTime.containsKey(formattedDate)) {
-                        // If the specific day already has an appointment, add to the key of the date
-                        datesAndTime.get(formattedDate).add(appointment.getTime().toString());
-                    } else {
-                        List<String> timeList = new ArrayList<>();
-                        timeList.add(appointment.getTime().toString());
-                        datesAndTime.put(formattedDate, timeList);
-                    }
+                if (datesAndTime.containsKey(formattedDate)) {
+                    // If the specific day already has an appointment, add to the key of the date
+                    datesAndTime.get(formattedDate).add(appointment.getTime().toString());
+                } else {
+                    List<String> timeList = new ArrayList<>();
+                    timeList.add(appointment.getTime().toString());
+                    datesAndTime.put(formattedDate, timeList);
                 }
             }
+        }
         return datesAndTime;
     }
 

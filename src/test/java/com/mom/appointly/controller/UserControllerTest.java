@@ -1,4 +1,4 @@
-package com.mom.appointly;
+package com.mom.appointly.controller;
 
 import com.mom.appointly.model.Appointment;
 import com.mom.appointly.model.CustomerData;

@@ -1,4 +1,4 @@
-package com.mom.appointly;
+package com.mom.appointly.service;
 
 import com.mom.appointly.auth.model.AuthenticationRequest;
 import com.mom.appointly.auth.model.AuthenticationResponse;
