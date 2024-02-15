@@ -67,6 +67,7 @@ public class AppointlyService {
         }
         throw new RuntimeException("Appointment doesn't exist");
     }
+
     public void canMakeChanges(UserEntity userEntity) {
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         UserEntity connectedUser = userRepo.findByEmail(userEmail).get();
@@ -104,8 +105,6 @@ public class AppointlyService {
         throw new RuntimeException("The appointment doesn't exist");
     }
 
-
-
     public List<Appointment> getAppointments(String shopName) {
         // Fetch the shop by name
         Optional<Shop> shopOptional = shopRepo.findByName(shopName);
@@ -138,7 +137,7 @@ public class AppointlyService {
             adminDataRepo.save(adminData.get());
         } else { // if is the first shop that the admin create, add a new AdminData to the database
             List<Shop> shops = new ArrayList<>();
-            AdminData newAdminData = new AdminData(null, userEntity, shops);
+            AdminData newAdminData = new AdminData(1L, userEntity, shops);
             shop.setAdminData(newAdminData);
             shopRepo.save(shop);
             shops.add(shop);
@@ -161,9 +160,12 @@ public class AppointlyService {
                 shopOptional.get().setTelephone(shop.getTelephone());
                 shopRepo.save(shopOptional.get());
                 return shopOptional.get();
+            } else {
+                throw new RuntimeException("You don't have the permissions");
             }
+        } else {
+            throw new RuntimeException("Shop doesn't exist");
         }
-        throw new RuntimeException("Edit failed");
     }
 
     public void deleteShop(String shopName) {

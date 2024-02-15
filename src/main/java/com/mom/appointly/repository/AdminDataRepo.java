@@ -9,4 +9,5 @@ import java.util.Optional;
 public interface AdminDataRepo extends JpaRepository<AdminData, Long> {
     Optional<AdminData> findByUserEntity(UserEntity userEntity);
     Optional<AdminData> findByUserEntityEmail(String email);
+
 }

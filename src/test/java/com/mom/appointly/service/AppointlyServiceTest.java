@@ -1,10 +1,7 @@
 package com.mom.appointly.service;
 
 import com.mom.appointly.model.*;
-import com.mom.appointly.repository.AppointmentRepo;
-import com.mom.appointly.repository.CustomerDataRepo;
-import com.mom.appointly.repository.ShopRepo;
-import com.mom.appointly.repository.UserRepo;
+import com.mom.appointly.repository.*;
 import com.mom.appointly.service.AppointlyService;
 import com.mom.appointly.testUtil.TestUtil;
 import net.bytebuddy.dynamic.DynamicType;
@@ -26,6 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.sql.Date;
 import java.sql.Time;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -56,6 +54,9 @@ public class AppointlyServiceTest {
 
     @Mock
     private AppointmentRepo appointmentRepo;
+
+    @Mock
+    private AdminDataRepo adminDataRepo;
 
     private TestUtil testUtil;
     @Mock
@@ -198,7 +199,7 @@ public class AppointlyServiceTest {
         CustomerData customerData = testUtil.createCustomerData(userEntity, shop, appointment);
         appointment.setCustomerData(customerData);
         Appointment newAppointment = testUtil.createAppointment();
-
+        // set the new data
         newAppointment.setId(1L);
         newAppointment.setDate(Date.valueOf("2024-02-14"));
         newAppointment.setTime(Time.valueOf("11:00:00"));
@@ -226,6 +227,7 @@ public class AppointlyServiceTest {
         CustomerData customerData = testUtil.createCustomerData(userEntity, shop, existingAppointment);
         existingAppointment.setCustomerData(customerData);
         Appointment newAppointment = testUtil.createAppointment();
+        // set the new data
         newAppointment.setDate(Date.valueOf("2024-02-14"));
         newAppointment.setTime(Time.valueOf("11:00:00"));
         newAppointment.setCustomerData(customerData);
@@ -277,7 +279,6 @@ public class AppointlyServiceTest {
     public void testCancelAppointmentDoesNotExist() {
         // given
         long nonExistingAppointmentId = 100L;
-
         // then
         RuntimeException exception = assertThrows(RuntimeException.class, () -> appointlyService.cancelAppointment(nonExistingAppointmentId));
         // when
@@ -286,6 +287,236 @@ public class AppointlyServiceTest {
 
     // end of cancelAppointment
 
+    // start of getAppointments
+
+    @Test
+    public void testGetAppointmentsShopExists() {
+        // given
+        String shopName = "Test Shop";
+        Shop shop = new Shop();
+        shop.setName(shopName);
+
+        CustomerData customerData1 = new CustomerData();
+        customerData1.setAppointments(new ArrayList<>());
+        CustomerData customerData2 = new CustomerData();
+        customerData2.setAppointments(new ArrayList<>());
+
+        List<CustomerData> customerDataList = new ArrayList<>();
+        customerDataList.add(customerData1);
+        customerDataList.add(customerData2);
+
+        Appointment appointment1 = new Appointment();
+        Appointment appointment2 = new Appointment();
+        customerData1.getAppointments().add(appointment1);
+        customerData2.getAppointments().add(appointment2);
+        // when
+        when(shopRepo.findByName(shopName)).thenReturn(Optional.of(shop));
+        when(customerDataRepo.findByShop(shop)).thenReturn(customerDataList);
+        // act
+        List<Appointment> appointments = appointlyService.getAppointments(shopName);
+        // then
+        assertEquals(2, appointments.size());
+        assertEquals(appointment1, appointments.get(0));
+        assertEquals(appointment2, appointments.get(1));
+    }
+
+    @Test
+    public void testGetAppointmentsShopDoesNotExist() {
+        // given
+        String nonExistingShopName = "Non-existing Shop";
+        // when
+        when(shopRepo.findByName(nonExistingShopName)).thenReturn(Optional.empty());
+        // then
+        assertThrows(RuntimeException.class, () -> appointlyService.getAppointments(nonExistingShopName));
+    }
+
+    // end of getAppointments
+
+    // start to addShop
+    @Test
+    public void testAddShopAdminDataExist(){
+        // given
+        UserEntity userEntity = testUtil.createUser();
+        Shop shop = testUtil.createShop();
+        List<Shop> shops = new ArrayList<>();
+        shops.add(shop);
+        AdminData adminData = testUtil.createAdminData(userEntity, shops);
+        shop.setAdminData(adminData);
+        // when
+        when(userRepo.findByEmail(Mockito.anyString())).thenReturn(Optional.of(userEntity));
+        when(adminDataRepo.findByUserEntity(Mockito.any())).thenReturn(Optional.of(adminData));
+        appointlyService.addShop(shop);
+        // then
+        ArgumentCaptor<Shop> shopArgumentCaptor =
+                ArgumentCaptor.forClass(Shop.class);
+        verify(shopRepo).save(shopArgumentCaptor.capture());
+        Shop shopCaptor = shopArgumentCaptor.getValue();
+        // check if the shop is saved correctly
+        assertThat(shopCaptor).isEqualTo(shop);
+
+        ArgumentCaptor<AdminData> adminDataArgumentCaptor =
+                ArgumentCaptor.forClass(AdminData.class);
+        verify(adminDataRepo).save(adminDataArgumentCaptor.capture());
+        AdminData adminDataCaptor = adminDataArgumentCaptor.getValue();
+        // check if is the admin data saved correctly
+        assertThat(adminDataCaptor).isEqualTo(adminData);
+    }
+
+    @Test
+    public void testAddShopAdminDataNotExist(){
+        // given
+        UserEntity userEntity = testUtil.createUser();
+        Shop shop = testUtil.createShop();
+        List<Shop> shops = new ArrayList<>();
+        shops.add(shop);
+        AdminData adminData = testUtil.createAdminData(userEntity, shops);
+        shop.setAdminData(adminData);
+        // when
+        when(userRepo.findByEmail(Mockito.anyString())).thenReturn(Optional.of(userEntity));
+        appointlyService.addShop(shop);
+        // then
+        ArgumentCaptor<Shop> shopArgumentCaptor =
+                ArgumentCaptor.forClass(Shop.class);
+        verify(shopRepo).save(shopArgumentCaptor.capture());
+        Shop shopCaptor = shopArgumentCaptor.getValue();
+        // check if the shop is saved correctly
+        assertThat(shopCaptor).isEqualTo(shop);
+
+        ArgumentCaptor<AdminData> adminDataArgumentCaptor =
+                ArgumentCaptor.forClass(AdminData.class);
+        verify(adminDataRepo).save(adminDataArgumentCaptor.capture());
+        AdminData adminDataCaptor = adminDataArgumentCaptor.getValue();
+        // check if is the admin data saved correctly
+        assertThat(adminDataCaptor).isEqualTo(adminData);
+    }
+
+    // end of addShop
+
+    // start of editShop
+
+    @Test
+    public void testEditShopSuccess() {
+        // given
+        UserEntity userEntity = testUtil.createUser();
+        Shop shop = testUtil.createShop();
+        AdminData adminData = testUtil.createAdminData(userEntity, Collections.singletonList(shop));
+        shop.setAdminData(adminData);
+
+        ShopUpdateRequest shopUpdateRequest = testUtil.createShopUpdateRequest();
+
+        when(shopRepo.findById(shop.getId())).thenReturn(Optional.of(shop));
+        when(SecurityContextHolder.getContext().getAuthentication().getName()).thenReturn(userEntity.getEmail());
+
+        // when
+        appointlyService.editShop(shopUpdateRequest);
+
+        // then
+        ArgumentCaptor<Shop> shopArgumentCaptor =
+                ArgumentCaptor.forClass(Shop.class);
+        verify(shopRepo).save(shopArgumentCaptor.capture());
+        Shop shopCaptor = shopArgumentCaptor.getValue();
+        // check if the shop is saved correctly
+        assertThat(shopCaptor.getName()).isEqualTo(shopUpdateRequest.getName());
+        assertThat(shopCaptor.getAddress()).isEqualTo(shopUpdateRequest.getAddress());
+        assertThat(shopCaptor.getDescription()).isEqualTo(shopUpdateRequest.getDescription());
+        assertThat(shopCaptor.getTelephone()).isEqualTo(shopUpdateRequest.getTelephone());
+        assertThat(shopCaptor.getCost()).isEqualTo(shopUpdateRequest.getCost());
+        assertThat(shopCaptor.getServicesOptions()).isEqualTo(shopUpdateRequest.getServicesOptions());
+
+    }
+
+    @Test
+    public void testEditShopUnauthorizedUser() {
+        // given
+        UserEntity userEntity = testUtil.createUser();
+        Shop shop = testUtil.createShop();
+        AdminData adminData = testUtil.createAdminData(userEntity, Collections.singletonList(shop));
+        shop.setAdminData(adminData);
+
+        ShopUpdateRequest shopUpdateRequest = testUtil.createShopUpdateRequest();
+
+        when(shopRepo.findById(shop.getId())).thenReturn(Optional.of(shop));
+        when(SecurityContextHolder.getContext().getAuthentication().getName()).thenReturn("unauthorized@example.com");
+
+        // when and then
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> appointlyService.editShop(shopUpdateRequest));
+        assertEquals("You don't have the permissions", exception.getMessage());
+    }
+
+    @Test
+    public void testEditShopShopNotFound() {
+        // given
+        ShopUpdateRequest shopUpdateRequest = testUtil.createShopUpdateRequest();
+        shopUpdateRequest.setId(1L);
+
+        when(shopRepo.findById(shopUpdateRequest.getId())).thenReturn(Optional.empty());
+
+        // when and then
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> appointlyService.editShop(shopUpdateRequest));
+        assertEquals("Shop doesn't exist", exception.getMessage());
+    }
+
+    // end of editShop
+
+    // start of deleteShop
+
+    @Test
+    public void testDeleteShopSuccess() {
+        // given
+        UserEntity userEntity = testUtil.createUser();
+        Shop shop = testUtil.createShop();
+        List <Shop> shops = new ArrayList<>();
+        shops.add(shop);
+        AdminData adminData = testUtil.createAdminData(userEntity, shops);
+        shop.setAdminData(adminData);
+        when(shopRepo.findByName(shop.getName())).thenReturn(Optional.of(shop));
+        when(userRepo.findByEmail(userEntity.getEmail())).thenReturn(Optional.of(userEntity));
+
+        // when
+        appointlyService.deleteShop(shop.getName());
+
+        // then
+        verify(adminDataRepo).delete(adminData);
+        verify(shopRepo).delete(shop);
+    }
+
+    @Test
+    public void testDeleteShopNotFound() {
+        // given
+        when(shopRepo.findByName("NonExistingShop")).thenReturn(Optional.empty());
+
+        // when and then
+        assertThrows(RuntimeException.class, () -> appointlyService.deleteShop("NonExistingShop"));
+    }
+
+    // end of deleteShop
+
+    // start searchShopById
+
+    @Test
+    public void testSearchShopByIdSuccess() {
+        // given
+        Shop shop = testUtil.createShop();
+        when(shopRepo.findById(1L)).thenReturn(Optional.of(shop));
+
+        // when
+        Shop foundShop = appointlyService.searchShopById(1L);
+
+        // then
+        assertNotNull(foundShop);
+        assertEquals(1L, foundShop.getId());
+    }
+
+    @Test
+    public void testSearchShopByIdNotFound() {
+        // given
+        when(shopRepo.findById(1L)).thenReturn(Optional.empty());
+
+        // when and then
+        assertThrows(RuntimeException.class, () -> appointlyService.searchShopById(1L));
+    }
+
+    // end of searchShopById
 
 
 }

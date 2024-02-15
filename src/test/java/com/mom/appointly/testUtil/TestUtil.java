@@ -109,4 +109,28 @@ public class TestUtil {
                 .appointments(appointmentList)
                 .build();
     }
+
+    public AdminData createAdminData(UserEntity userEntity, List<Shop> shops) {
+        return AdminData.builder()
+                .id(1L)
+                .userEntity(userEntity)
+                .shops(shops)
+                .build();
+    }
+
+    public ShopUpdateRequest createShopUpdateRequest(){
+        ArrayList<Integer> cost = new ArrayList<>(Arrays.asList(10, 20, 30));
+        ArrayList<String> servicesOptions = new ArrayList<>(Arrays.asList("Service 1", "Service 2", "Service 3"));
+
+        return new ShopUpdateRequest(
+                1L,
+                "NewShopName",
+                "new address",
+                "new desc",
+                "9999999999",
+                cost,
+                servicesOptions
+
+        );
+    }
 }

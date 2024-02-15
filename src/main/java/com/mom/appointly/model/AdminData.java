@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @Builder
 @NoArgsConstructor
@@ -26,4 +27,18 @@ public class AdminData {
     @JoinColumn(name = "fk_ad_id")
     private List<Shop> shops;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AdminData that = (AdminData) o;
+        return Objects.equals(id, that.id) &&
+                Objects.equals(userEntity, that.userEntity) &&
+                Objects.equals(shops, that.shops);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, userEntity, shops);
+    }
 }
