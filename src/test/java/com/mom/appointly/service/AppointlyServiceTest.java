@@ -2,19 +2,15 @@ package com.mom.appointly.service;
 
 import com.mom.appointly.model.*;
 import com.mom.appointly.repository.*;
-import com.mom.appointly.service.AppointlyService;
 import com.mom.appointly.testUtil.TestUtil;
-import net.bytebuddy.dynamic.DynamicType;
-import org.aspectj.lang.annotation.Before;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.authentication.TestingAuthenticationToken;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -30,7 +26,8 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 @SpringBootTest
 @AutoConfigureMockMvc
 public class AppointlyServiceTest {
@@ -282,7 +279,7 @@ public class AppointlyServiceTest {
         // then
         RuntimeException exception = assertThrows(RuntimeException.class, () -> appointlyService.cancelAppointment(nonExistingAppointmentId));
         // when
-        assertEquals("The appointment doesn't exist", exception.getMessage());
+        assertEquals("Appointment not found", exception.getMessage());
     }
 
     // end of cancelAppointment

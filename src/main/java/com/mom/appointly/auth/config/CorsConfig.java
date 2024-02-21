@@ -3,7 +3,6 @@ package com.mom.appointly.auth.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpHeaders;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -12,7 +11,6 @@ import java.util.List;
 
 @Configuration
 public class CorsConfig { // to allow the front end to call the api
-
     @Value("#{'${cors.allowed-origins}'.split(',')}")
     private List<String> allowedOrigins;
 

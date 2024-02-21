@@ -5,10 +5,7 @@ import com.mom.appointly.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Time;
-import java.sql.Date;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -22,15 +19,16 @@ public class AppointlyService {
     private final CustomerDataRepo customerDataRepo;
     private final AdminDataRepo adminDataRepo;
 
-    public AdminData getCustomerData() {
+    public AdminData getAdminData() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName(); // return the email of the user that is connected
         Optional<AdminData> adminData = adminDataRepo.findByUserEntityEmail(email); // get the admin data that is connected
-        return adminData.get();
+        return adminData.orElseThrow(() -> new NoSuchElementException("AdminData not found"));
     }
 
     public CustomerData makeAppointment(String shopName, Appointment appointment) {
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName(); // get the email of the user that is connected
-        UserEntity userEntity = userRepo.findByEmail(userEmail).get();
+        UserEntity userEntity = userRepo.findByEmail(userEmail)
+                .orElseThrow(() -> new NoSuchElementException("User not found"));
         Optional<Shop> shop = shopRepo.findByName(shopName);
         if (shop.isPresent()) {
             Optional<CustomerData> customerData = customerDataRepo.findByUserEntityAndShop(userEntity, shop.get());
@@ -58,21 +56,21 @@ public class AppointlyService {
 
     public Appointment editAppointment(Appointment appointment) {
         Optional<Appointment> optionalAppointment = appointmentRepo.findById(appointment.getId());
-        if (optionalAppointment.isPresent()) {
-            Appointment existingAppointment = optionalAppointment.get();
-            canMakeChanges(existingAppointment.getCustomerData().getUserEntity());
-            existingAppointment.setTime(appointment.getTime());
-            existingAppointment.setDate(appointment.getDate());
-            return appointmentRepo.save(existingAppointment);
-        }
-        throw new RuntimeException("Appointment doesn't exist");
+
+        Appointment existingAppointment = optionalAppointment.orElseThrow(() -> new NoSuchElementException("Appointment not found"));
+
+        canMakeChanges(existingAppointment.getCustomerData().getUserEntity());
+        existingAppointment.setTime(appointment.getTime());
+        existingAppointment.setDate(appointment.getDate());
+        System.out.println(appointment.getDate());
+        return appointmentRepo.save(existingAppointment);
     }
 
     public void canMakeChanges(UserEntity userEntity) {
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        UserEntity connectedUser = userRepo.findByEmail(userEmail).get();
+        UserEntity connectedUser = userRepo.findByEmail(userEmail).orElseThrow();
         // if the user doesn't own the change he wants to make or is not the admin throws exception
-        if (userEntity.getRole().equals(Role.USER)) {
+        if (userEntity.getRole().equals(Role.USER)) { // add one more check to check if is the owner of the shop
             throw new RuntimeException("You don't have the permissions");
         }
     }
@@ -86,46 +84,39 @@ public class AppointlyService {
 
     public void cancelAppointment(Long id) {
         Optional<Appointment> appointmentOptional = appointmentRepo.findById(id);
+        Appointment canceledAppointment = appointmentOptional.orElseThrow(() -> new NoSuchElementException("Appointment not found"));
 
-        if (appointmentOptional.isPresent()) { // check if the appointment exist
-            Appointment canceledAppointment = appointmentOptional.get();
-            CustomerData customerData = canceledAppointment.getCustomerData();
-            canMakeChanges(customerData.getUserEntity());
-            // Remove the appointment from the  list of appointments
-            customerData.getAppointments().remove(canceledAppointment);
-            // Set null the customer_data from the canceled appointment to be able to delete
-            canceledAppointment.setCustomerData(null);
-            // Check if the last appointment for the customer_data
-            if (customerData.getAppointments().isEmpty()) { // remove the customer data from the database if is the last appointment
-                customerDataRepo.delete(customerData);
-            }
-            appointmentRepo.delete(canceledAppointment);
-            return;
+        CustomerData customerData = canceledAppointment.getCustomerData();
+        canMakeChanges(customerData.getUserEntity());
+        // Remove the appointment from the  list of appointments
+        customerData.getAppointments().remove(canceledAppointment);
+        // Set null the customer_data from the canceled appointment to be able to delete
+        canceledAppointment.setCustomerData(null);
+        // Check if the last appointment for the customer_data
+        if (customerData.getAppointments().isEmpty()) { // remove the customer data from the database if is the last appointment
+            customerDataRepo.delete(customerData);
         }
-        throw new RuntimeException("The appointment doesn't exist");
+        appointmentRepo.delete(canceledAppointment);
+
     }
 
     public List<Appointment> getAppointments(String shopName) {
         // Fetch the shop by name
         Optional<Shop> shopOptional = shopRepo.findByName(shopName);
         // Check if the shop exists
-        if (shopOptional.isPresent()) {
-            Shop shop = shopOptional.get();
-            List<CustomerData> customerDataList = customerDataRepo.findByShop(shop);
-            List<Appointment> appointments = new ArrayList<>();
-            // Iterate through customer data and collect appointments
-            for (CustomerData customerData : customerDataList) {
-                appointments.addAll(customerData.getAppointments());
-            }
-            return appointments;
-        } else {
-            throw new RuntimeException("Shop doesn't exist");
+        Shop shop = shopOptional.orElseThrow(() -> new NoSuchElementException("Shop not found"));
+        List<CustomerData> customerDataList = customerDataRepo.findByShop(shop);
+        List<Appointment> appointments = new ArrayList<>();
+        // Iterate through customer data and collect appointments
+        for (CustomerData customerData : customerDataList) {
+            appointments.addAll(customerData.getAppointments());
         }
+        return appointments;
     }
 
     public void addShop(Shop shop) {
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        UserEntity userEntity = userRepo.findByEmail(userEmail).get();
+        UserEntity userEntity = userRepo.findByEmail(userEmail).orElseThrow();
         Optional<AdminData> adminData = adminDataRepo.findByUserEntity(userEntity);
 
         checkIfNameAlreadyExist(shop.getName());
@@ -171,33 +162,29 @@ public class AppointlyService {
     public void deleteShop(String shopName) {
         Optional<Shop> shopOptional = shopRepo.findByName(shopName);
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        canMakeChanges(userRepo.findByEmail(userEmail).get());
-        if (shopOptional.isPresent()) {
-            Shop canceledShop = shopOptional.get();
-            AdminData adminData = canceledShop.getAdminData();
-            // Remove the shop from the  list of appointments
-            adminData.getShops().remove(canceledShop);
-            // Set null the admin_data from the canceled appointment to be able to delete
-            canceledShop.setAdminData(null);
-            // Check if the last appointment for the customer_data
-            if (adminData.getShops().isEmpty()) {
-                adminDataRepo.delete(adminData);
-            }
-            shopRepo.delete(canceledShop);
+        canMakeChanges(userRepo.findByEmail(userEmail).orElseThrow(() -> new NoSuchElementException("AdminData not found")));
+        Shop canceledShop = shopOptional.orElseThrow(() -> new NoSuchElementException("Shop not found"));
+        AdminData adminData = canceledShop.getAdminData();
+        // Remove the shop from the  list of appointments
+        adminData.getShops().remove(canceledShop);
+        // Set null the admin_data from the canceled appointment to be able to delete
+        canceledShop.setAdminData(null);
+        // Check if the last appointment for the customer_data
+        if (adminData.getShops().isEmpty()) {
+            adminDataRepo.delete(adminData);
         }
+        shopRepo.delete(canceledShop);
+
     }
 
     public Shop searchShopById(Long id) {
         Optional<Shop> shopOptional = shopRepo.findById(id);
-        if (shopOptional.isPresent()) {
-            return shopOptional.get();
-        }
-        throw new RuntimeException(" The shop doesn't exist");
+        return shopOptional.orElseThrow(() -> new NoSuchElementException("Shop not found"));
     }
 
     public List<Shop> getShops() {
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        return adminDataRepo.findByUserEntityEmail(userEmail).get().getShops();
+        return adminDataRepo.findByUserEntityEmail(userEmail).orElseThrow().getShops();
     }
 
     public List<Shop> searchByLocationAndService(String location, String service) {
@@ -235,6 +222,7 @@ public class AppointlyService {
                     timeList.add(appointment.getTime().toString());
                     datesAndTime.put(formattedDate, timeList);
                 }
+
             }
         }
         return datesAndTime;
@@ -242,10 +230,7 @@ public class AppointlyService {
 
     public Shop getShopByAdminDataEmail(String email) {
         Optional<Shop> shopOptional = shopRepo.findByAdminData_UserEntity_Email(email);
-        if (shopOptional.isPresent()) {
-            return shopOptional.get();
-        }
-        throw new RuntimeException("Shop doesn't exist");
+        return shopOptional.orElseThrow(() -> new NoSuchElementException("Shop not found"));
     }
 
 }

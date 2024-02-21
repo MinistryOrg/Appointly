@@ -26,7 +26,6 @@ public class JwtService {
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject); // subject is email or username
     }
-
     public String generateToken(Map<String, Object> extractClaim, UserDetails userDetails) {
         return Jwts
                 .builder()
@@ -77,7 +76,6 @@ public class JwtService {
                 .parseClaimsJws(token)
                 .getBody();
     }
-
     private Key getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
         return Keys.hmacShaKeyFor(keyBytes);

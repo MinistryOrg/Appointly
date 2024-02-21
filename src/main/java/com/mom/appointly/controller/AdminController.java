@@ -17,7 +17,7 @@ public class AdminController {
 
     @GetMapping("/users")
     public ResponseEntity<?> getUsers() {
-        return new ResponseEntity<>(appointlyService.getCustomerData(), HttpStatus.OK);
+        return new ResponseEntity<>(appointlyService.getAdminData(), HttpStatus.OK);
     }
 
     @GetMapping("/shops")
@@ -41,6 +41,7 @@ public class AdminController {
                 (appointlyService.editAppointment(appointment),
                         HttpStatus.OK);
     }
+
     @DeleteMapping("/deleteShop")
     private ResponseEntity<?> deleteShop(@RequestParam String shopName) {
         appointlyService.deleteShop(shopName);

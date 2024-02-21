@@ -1,13 +1,11 @@
 package com.mom.appointly.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.sql.Time;
 import java.sql.Date;
+import java.sql.Time;
 
 @Builder
 @NoArgsConstructor
