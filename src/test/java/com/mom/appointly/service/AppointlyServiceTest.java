@@ -3,6 +3,7 @@ package com.mom.appointly.service;
 import com.mom.appointly.model.*;
 import com.mom.appointly.repository.*;
 import com.mom.appointly.testUtil.TestUtil;
+import com.mom.appointly.util.AppointlyUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -24,10 +25,12 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.linesOf;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
 @SpringBootTest
 @AutoConfigureMockMvc
 public class AppointlyServiceTest {
@@ -51,11 +54,17 @@ public class AppointlyServiceTest {
 
     @Mock
     private AppointmentRepo appointmentRepo;
+    @InjectMocks
+    private AppointmentService appointmentService;
+
+    @InjectMocks
+    private ShopService shopService;
 
     @Mock
     private AdminDataRepo adminDataRepo;
-
     private TestUtil testUtil;
+    @Mock
+    private AppointlyUtil appointlyUtil;
     @Mock
     private PasswordEncoder passwordEncoder;
 
@@ -85,7 +94,7 @@ public class AppointlyServiceTest {
         when(userRepo.findByEmail("connected@example.com")).thenReturn(Optional.of(connectedUser));
 
         // then
-        assertThrows(RuntimeException.class, () -> appointlyService.canMakeChanges(connectedUser));
+        assertThrows(RuntimeException.class, () -> appointlyUtil.canMakeChanges(connectedUser));
     }
 
     @Test
@@ -106,7 +115,7 @@ public class AppointlyServiceTest {
         when(userRepo.findByEmail("connected@example.com")).thenReturn(Optional.of(connectedUser));
 
         // then pass different user that is not admin or the owner
-        assertThrows(RuntimeException.class, () -> appointlyService.canMakeChanges(userEntity));
+        assertThrows(RuntimeException.class, () -> appointlyUtil.canMakeChanges(userEntity));
     }
 
     // end of canMakeChanges
@@ -114,7 +123,7 @@ public class AppointlyServiceTest {
     // start of makeAppointment
 
     @Test
-    public void testMakeAppointmentCustomerDataExist(){
+    public void testMakeAppointmentCustomerDataExist() {
         // given
         UserEntity userEntity = testUtil.createUser();
         Shop shop = testUtil.createShop();
@@ -124,7 +133,7 @@ public class AppointlyServiceTest {
         when(userRepo.findByEmail(Mockito.anyString())).thenReturn(Optional.of(userEntity));
         when(shopRepo.findByName(Mockito.anyString())).thenReturn(Optional.of(shop));
         when(customerDataRepo.findByUserEntityAndShop(Mockito.any(), Mockito.any())).thenReturn(Optional.of(customerData));
-        appointlyService.makeAppointment(shop.getName(), appointment);
+        appointmentService.makeAppointment(shop.getName(), appointment);
         // then
         ArgumentCaptor<CustomerData> customerDataArgumentCaptor =
                 ArgumentCaptor.forClass(CustomerData.class);
@@ -142,17 +151,17 @@ public class AppointlyServiceTest {
     }
 
     @Test
-    public void testMakeAppointmentFirstAppointment(){
+    public void testMakeAppointmentFirstAppointment() {
         // given
         UserEntity userEntity = testUtil.createUser();
         Shop shop = testUtil.createShop();
         Appointment appointment = testUtil.createAppointment();
-        CustomerData customerData = testUtil.createCustomerData(1L,userEntity, shop, appointment);
+        CustomerData customerData = testUtil.createCustomerData(1L, userEntity, shop, appointment);
 
         // when
         when(userRepo.findByEmail(Mockito.anyString())).thenReturn(Optional.of(userEntity));
         when(shopRepo.findByName(Mockito.anyString())).thenReturn(Optional.of(shop));
-        appointlyService.makeAppointment(shop.getName(), appointment);
+        appointmentService.makeAppointment(shop.getName(), appointment);
 
         // then
         ArgumentCaptor<CustomerData> customerDataArgumentCaptor =
@@ -179,7 +188,7 @@ public class AppointlyServiceTest {
         when(userRepo.findByEmail(Mockito.anyString())).thenReturn(Optional.of(userEntity));
         when(shopRepo.findByName(Mockito.anyString())).thenReturn(Optional.empty()); // Shop does not exist
         // then
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> appointlyService.makeAppointment(shop.getName(), appointment));
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> appointmentService.makeAppointment(shop.getName(), appointment));
         assertEquals("Shop doesn't exist", exception.getMessage());
     }
 
@@ -203,7 +212,7 @@ public class AppointlyServiceTest {
         // when
         when(userRepo.findByEmail(Mockito.anyString())).thenReturn(Optional.of(userEntity));
         when(appointmentRepo.findById(appointment.getId())).thenReturn(Optional.of(appointment));
-        appointlyService.editAppointment(newAppointment);
+        appointmentService.editAppointment(newAppointment);
         // then
         ArgumentCaptor<Appointment> appointmentArgumentCaptor =
                 ArgumentCaptor.forClass(Appointment.class);
@@ -232,7 +241,8 @@ public class AppointlyServiceTest {
         when(appointmentRepo.findById(existingAppointment.getId())).thenReturn(Optional.of(existingAppointment));
         when(userRepo.findByEmail(Mockito.anyString())).thenReturn(Optional.of(userEntity));
         // then
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> appointlyService.editAppointment(newAppointment));
+        System.out.println(userEntity.getRole());
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> appointmentService.editAppointment(newAppointment));
         assertEquals("You don't have the permissions", exception.getMessage());
     }
 
@@ -244,7 +254,7 @@ public class AppointlyServiceTest {
         // when
         when(appointmentRepo.findById(newAppointment.getId())).thenReturn(Optional.empty());
         // then
-        assertThrows(RuntimeException.class, () -> appointlyService.editAppointment(newAppointment));
+        assertThrows(RuntimeException.class, () -> appointmentService.editAppointment(newAppointment));
     }
 
     // end of editAppointment
@@ -266,7 +276,7 @@ public class AppointlyServiceTest {
         when(appointmentRepo.findById(appointment.getId())).thenReturn(Optional.of(appointment));
         when(customerDataRepo.save(customerData)).thenReturn(customerData);
         // act
-        appointlyService.cancelAppointment(appointment.getId());
+        appointmentService.cancelAppointment(appointment.getId());
         // then
         verify(appointmentRepo).delete(appointment);
         verify(customerDataRepo).delete(customerData);
@@ -277,7 +287,7 @@ public class AppointlyServiceTest {
         // given
         long nonExistingAppointmentId = 100L;
         // then
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> appointlyService.cancelAppointment(nonExistingAppointmentId));
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> appointmentService.cancelAppointment(nonExistingAppointmentId));
         // when
         assertEquals("Appointment not found", exception.getMessage());
     }
@@ -310,7 +320,7 @@ public class AppointlyServiceTest {
         when(shopRepo.findByName(shopName)).thenReturn(Optional.of(shop));
         when(customerDataRepo.findByShop(shop)).thenReturn(customerDataList);
         // act
-        List<Appointment> appointments = appointlyService.getAppointments(shopName);
+        List<Appointment> appointments = appointmentService.getAppointments(shopName);
         // then
         assertEquals(2, appointments.size());
         assertEquals(appointment1, appointments.get(0));
@@ -324,14 +334,14 @@ public class AppointlyServiceTest {
         // when
         when(shopRepo.findByName(nonExistingShopName)).thenReturn(Optional.empty());
         // then
-        assertThrows(RuntimeException.class, () -> appointlyService.getAppointments(nonExistingShopName));
+        assertThrows(RuntimeException.class, () -> appointmentService.getAppointments(nonExistingShopName));
     }
 
     // end of getAppointments
 
     // start to addShop
     @Test
-    public void testAddShopAdminDataExist(){
+    public void testAddShopAdminDataExist() {
         // given
         UserEntity userEntity = testUtil.createUser();
         Shop shop = testUtil.createShop();
@@ -342,7 +352,7 @@ public class AppointlyServiceTest {
         // when
         when(userRepo.findByEmail(Mockito.anyString())).thenReturn(Optional.of(userEntity));
         when(adminDataRepo.findByUserEntity(Mockito.any())).thenReturn(Optional.of(adminData));
-        appointlyService.addShop(shop);
+        shopService.addShop(shop);
         // then
         ArgumentCaptor<Shop> shopArgumentCaptor =
                 ArgumentCaptor.forClass(Shop.class);
@@ -360,7 +370,7 @@ public class AppointlyServiceTest {
     }
 
     @Test
-    public void testAddShopAdminDataNotExist(){
+    public void testAddShopAdminDataNotExist() {
         // given
         UserEntity userEntity = testUtil.createUser();
         Shop shop = testUtil.createShop();
@@ -370,7 +380,7 @@ public class AppointlyServiceTest {
         shop.setAdminData(adminData);
         // when
         when(userRepo.findByEmail(Mockito.anyString())).thenReturn(Optional.of(userEntity));
-        appointlyService.addShop(shop);
+        shopService.addShop(shop);
         // then
         ArgumentCaptor<Shop> shopArgumentCaptor =
                 ArgumentCaptor.forClass(Shop.class);
@@ -405,7 +415,7 @@ public class AppointlyServiceTest {
         when(SecurityContextHolder.getContext().getAuthentication().getName()).thenReturn(userEntity.getEmail());
 
         // when
-        appointlyService.editShop(shopUpdateRequest);
+        shopService.editShop(shopUpdateRequest);
 
         // then
         ArgumentCaptor<Shop> shopArgumentCaptor =
@@ -436,7 +446,7 @@ public class AppointlyServiceTest {
         when(SecurityContextHolder.getContext().getAuthentication().getName()).thenReturn("unauthorized@example.com");
 
         // when and then
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> appointlyService.editShop(shopUpdateRequest));
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> shopService.editShop(shopUpdateRequest));
         assertEquals("You don't have the permissions", exception.getMessage());
     }
 
@@ -449,7 +459,7 @@ public class AppointlyServiceTest {
         when(shopRepo.findById(shopUpdateRequest.getId())).thenReturn(Optional.empty());
 
         // when and then
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> appointlyService.editShop(shopUpdateRequest));
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> shopService.editShop(shopUpdateRequest));
         assertEquals("Shop doesn't exist", exception.getMessage());
     }
 
@@ -462,7 +472,7 @@ public class AppointlyServiceTest {
         // given
         UserEntity userEntity = testUtil.createUser();
         Shop shop = testUtil.createShop();
-        List <Shop> shops = new ArrayList<>();
+        List<Shop> shops = new ArrayList<>();
         shops.add(shop);
         AdminData adminData = testUtil.createAdminData(userEntity, shops);
         shop.setAdminData(adminData);
@@ -470,7 +480,7 @@ public class AppointlyServiceTest {
         when(userRepo.findByEmail(userEntity.getEmail())).thenReturn(Optional.of(userEntity));
 
         // when
-        appointlyService.deleteShop(shop.getName());
+        shopService.deleteShop(shop.getName());
 
         // then
         verify(adminDataRepo).delete(adminData);
@@ -483,7 +493,7 @@ public class AppointlyServiceTest {
         when(shopRepo.findByName("NonExistingShop")).thenReturn(Optional.empty());
 
         // when and then
-        assertThrows(RuntimeException.class, () -> appointlyService.deleteShop("NonExistingShop"));
+        assertThrows(RuntimeException.class, () -> shopService.deleteShop("NonExistingShop"));
     }
 
     // end of deleteShop
@@ -497,7 +507,7 @@ public class AppointlyServiceTest {
         when(shopRepo.findById(1L)).thenReturn(Optional.of(shop));
 
         // when
-        Shop foundShop = appointlyService.searchShopById(1L);
+        Shop foundShop = shopService.searchShopById(1L);
 
         // then
         assertNotNull(foundShop);
@@ -510,7 +520,7 @@ public class AppointlyServiceTest {
         when(shopRepo.findById(1L)).thenReturn(Optional.empty());
 
         // when and then
-        assertThrows(RuntimeException.class, () -> appointlyService.searchShopById(1L));
+        assertThrows(RuntimeException.class, () -> shopService.searchShopById(1L));
     }
 
     // end of searchShopById

@@ -6,6 +6,8 @@ import com.mom.appointly.auth.model.ChangePasswordRequest;
 import com.mom.appointly.auth.model.RegisterRequest;
 import com.mom.appointly.auth.service.AuthenticationService;
 import com.mom.appointly.service.AppointlyService;
+import com.mom.appointly.service.AppointmentService;
+import com.mom.appointly.service.ShopService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +22,8 @@ import java.security.Principal;
 public class AuthenticationController {
     private final AuthenticationService authenticationService;
     private final AppointlyService appointlyService;
+    private final AppointmentService appointmentService;
+    private final ShopService shopService;
     @GetMapping("/test")
     public  ResponseEntity<?> getTest(){
         return ResponseEntity.ok("test");
@@ -53,16 +57,16 @@ public class AuthenticationController {
     }
     @GetMapping("/shopsByLocationService")
     private ResponseEntity<?> getByLocationService(@RequestParam String location, @RequestParam String service){
-        return new ResponseEntity<>(appointlyService.searchByLocationAndService(location, service), HttpStatus.OK);
+        return new ResponseEntity<>(shopService.searchByLocationAndService(location, service), HttpStatus.OK);
     }
     @GetMapping("/searchShopById")
     private  ResponseEntity<?> getShopById(@RequestParam Long id){
-        return new ResponseEntity<>(appointlyService.searchShopById(id), HttpStatus.OK);
+        return new ResponseEntity<>(shopService.searchShopById(id), HttpStatus.OK);
     }
 
     @GetMapping("/dates")
     private ResponseEntity<?> getDates(@RequestParam String shopName) {
-        return new ResponseEntity<>(appointlyService.getDates(shopName), HttpStatus.OK);
+        return new ResponseEntity<>(appointmentService.getDates(shopName), HttpStatus.OK);
     }
 
 }

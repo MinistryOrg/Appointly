@@ -33,6 +33,7 @@ public class AuthenticationControllerTests {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+
     @Test
     public void testRegistrationIntegration() {
         // Arrange
