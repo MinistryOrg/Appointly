@@ -1,9 +1,6 @@
 package com.mom.appointly.controller;
 
-import com.mom.appointly.model.Appointment;
-import com.mom.appointly.model.CustomerData;
-import com.mom.appointly.model.Shop;
-import com.mom.appointly.model.UserEntity;
+import com.mom.appointly.model.*;
 import com.mom.appointly.repository.AppointmentRepo;
 import com.mom.appointly.repository.CustomerDataRepo;
 import com.mom.appointly.repository.ShopRepo;

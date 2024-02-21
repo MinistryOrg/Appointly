@@ -1,11 +1,7 @@
 package com.mom.appointly.service;
 
-import com.mom.appointly.model.Appointment;
-import com.mom.appointly.model.CustomerData;
-import com.mom.appointly.model.Shop;
-import com.mom.appointly.model.UserEntity;
+import com.mom.appointly.model.*;
 import com.mom.appointly.repository.*;
-import com.mom.appointly.util.AppointlyUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -20,7 +16,6 @@ public class AppointmentService {
     private final ShopRepo shopRepo;
     private final AppointmentRepo appointmentRepo;
     private final CustomerDataRepo customerDataRepo;
-    private final AppointlyUtil appointlyUtil;
 
     public CustomerData makeAppointment(String shopName, Appointment appointment) {
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName(); // get the email of the user that is connected
@@ -56,12 +51,11 @@ public class AppointmentService {
 
         Appointment existingAppointment = optionalAppointment.orElseThrow(() -> new NoSuchElementException("Appointment not found"));
 
-        appointlyUtil.canMakeChanges(existingAppointment.getCustomerData().getUserEntity());
+        canMakeChanges(existingAppointment.getCustomerData().getUserEntity());
 
         existingAppointment.setTime(appointment.getTime());
         existingAppointment.setDate(appointment.getDate());
 
-        System.out.println(appointment.getDate());
         return appointmentRepo.save(existingAppointment);
     }
 
@@ -77,7 +71,7 @@ public class AppointmentService {
         Appointment canceledAppointment = appointmentOptional.orElseThrow(() -> new NoSuchElementException("Appointment not found"));
 
         CustomerData customerData = canceledAppointment.getCustomerData();
-        appointlyUtil.canMakeChanges(customerData.getUserEntity());
+        canMakeChanges(customerData.getUserEntity());
         // Remove the appointment from the  list of appointments
         customerData.getAppointments().remove(canceledAppointment);
         // Set null the customer_data from the canceled appointment to be able to delete
@@ -128,5 +122,14 @@ public class AppointmentService {
             }
         }
         return datesAndTime;
+    }
+
+    public void canMakeChanges(UserEntity userEntity) {
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserEntity connectedUser = userRepo.findByEmail(userEmail).orElseThrow();
+        // if the user doesn't own the change he wants to make or is not the admin throws exception
+        if (userEntity.getRole().equals(Role.USER)) {
+            throw new RuntimeException("You don't have the permissions");
+        }
     }
 }

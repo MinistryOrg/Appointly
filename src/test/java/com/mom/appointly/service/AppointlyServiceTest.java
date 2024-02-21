@@ -3,7 +3,6 @@ package com.mom.appointly.service;
 import com.mom.appointly.model.*;
 import com.mom.appointly.repository.*;
 import com.mom.appointly.testUtil.TestUtil;
-import com.mom.appointly.util.AppointlyUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -64,8 +63,6 @@ public class AppointlyServiceTest {
     private AdminDataRepo adminDataRepo;
     private TestUtil testUtil;
     @Mock
-    private AppointlyUtil appointlyUtil;
-    @Mock
     private PasswordEncoder passwordEncoder;
 
     @BeforeEach
@@ -94,7 +91,7 @@ public class AppointlyServiceTest {
         when(userRepo.findByEmail("connected@example.com")).thenReturn(Optional.of(connectedUser));
 
         // then
-        assertThrows(RuntimeException.class, () -> appointlyUtil.canMakeChanges(connectedUser));
+        assertThrows(RuntimeException.class, () -> appointmentService.canMakeChanges(connectedUser));
     }
 
     @Test
@@ -115,7 +112,7 @@ public class AppointlyServiceTest {
         when(userRepo.findByEmail("connected@example.com")).thenReturn(Optional.of(connectedUser));
 
         // then pass different user that is not admin or the owner
-        assertThrows(RuntimeException.class, () -> appointlyUtil.canMakeChanges(userEntity));
+        assertThrows(RuntimeException.class, () -> appointmentService.canMakeChanges(userEntity));
     }
 
     // end of canMakeChanges
@@ -241,7 +238,6 @@ public class AppointlyServiceTest {
         when(appointmentRepo.findById(existingAppointment.getId())).thenReturn(Optional.of(existingAppointment));
         when(userRepo.findByEmail(Mockito.anyString())).thenReturn(Optional.of(userEntity));
         // then
-        System.out.println(userEntity.getRole());
         RuntimeException exception = assertThrows(RuntimeException.class, () -> appointmentService.editAppointment(newAppointment));
         assertEquals("You don't have the permissions", exception.getMessage());
     }

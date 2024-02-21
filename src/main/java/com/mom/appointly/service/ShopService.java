@@ -1,14 +1,9 @@
 package com.mom.appointly.service;
 
-import com.mom.appointly.model.AdminData;
-import com.mom.appointly.model.Shop;
-import com.mom.appointly.model.ShopUpdateRequest;
-import com.mom.appointly.model.UserEntity;
+import com.mom.appointly.model.*;
 import com.mom.appointly.repository.AdminDataRepo;
-import com.mom.appointly.repository.CustomerDataRepo;
 import com.mom.appointly.repository.ShopRepo;
 import com.mom.appointly.repository.UserRepo;
-import com.mom.appointly.util.AppointlyUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -24,14 +19,13 @@ public class ShopService {
     private final UserRepo userRepo;
     private final ShopRepo shopRepo;
     private final AdminDataRepo adminDataRepo;
-    private final AppointlyUtil appointlyUtil;
 
     public void addShop(Shop shop) {
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         UserEntity userEntity = userRepo.findByEmail(userEmail).orElseThrow();
         Optional<AdminData> adminData = adminDataRepo.findByUserEntity(userEntity);
 
-        appointlyUtil.checkIfNameAlreadyExist(shop.getName());
+        checkIfNameAlreadyExist(shop.getName());
 
         if (adminData.isPresent()) { // if the admin already have a shop in the app add it the new one to the list
             adminData.get().getShops().add(shop);
@@ -74,7 +68,7 @@ public class ShopService {
     public void deleteShop(String shopName) {
         Optional<Shop> shopOptional = shopRepo.findByName(shopName);
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        appointlyUtil.canMakeChanges(userRepo.findByEmail(userEmail).orElseThrow(() -> new NoSuchElementException("AdminData not found")));
+        canMakeChanges(userRepo.findByEmail(userEmail).orElseThrow(() -> new NoSuchElementException("AdminData not found")));
         Shop canceledShop = shopOptional.orElseThrow(() -> new NoSuchElementException("Shop not found"));
         AdminData adminData = canceledShop.getAdminData();
         // Remove the shop from the  list of appointments
@@ -112,5 +106,18 @@ public class ShopService {
         return shopOptional.orElseThrow(() -> new NoSuchElementException("Shop not found"));
     }
 
+    public void canMakeChanges(UserEntity userEntity) {
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserEntity connectedUser = userRepo.findByEmail(userEmail).orElseThrow();
+        // if the user doesn't own the change he wants to make or is not the admin throws exception
+        if (userEntity.getRole().equals(Role.USER)) {
+            throw new RuntimeException("You don't have the permissions");
+        }
+    }
 
+    public void checkIfNameAlreadyExist(String name) {
+        if (shopRepo.findByName(name).isPresent()) {
+            throw new RuntimeException("Name already exist");
+        }
+    }
 }
