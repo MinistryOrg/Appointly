@@ -59,7 +59,7 @@ public class AppointmentService {
 
         existingAppointment.setTime(appointment.getTime());
         existingAppointment.setDate(appointment.getDate());
-
+        System.out.println(existingAppointment.getUserFirstname());
         return appointmentRepo.save(existingAppointment);
     }
 
@@ -132,7 +132,7 @@ public class AppointmentService {
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         UserEntity connectedUser = userRepo.findByEmail(userEmail).orElseThrow();
         // if the user doesn't own the change he wants to make or is not the admin throws exception
-        if (userEntity.getRole().equals(Role.USER)) {
+        if (connectedUser.getRole().equals(Role.USER)) {
             throw new RuntimeException("You don't have the permissions");
         }
     }
