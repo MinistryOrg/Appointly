@@ -21,13 +21,14 @@ import java.security.Principal;
 @RequiredArgsConstructor
 public class AuthenticationController {
     private final AuthenticationService authenticationService;
-    private final AppointlyService appointlyService;
     private final AppointmentService appointmentService;
     private final ShopService shopService;
+
     @GetMapping("/test")
-    public  ResponseEntity<?> getTest(){
+    public ResponseEntity<?> getTest() {
         return ResponseEntity.ok("test");
     }
+
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> register(
             @RequestBody RegisterRequest request
@@ -41,26 +42,31 @@ public class AuthenticationController {
     ) {
         return ResponseEntity.ok(authenticationService.registerAdmin(request));
     }
+
     @PostMapping("/authenticate")
     public ResponseEntity<AuthenticationResponse> authenticated(
             @RequestBody AuthenticationRequest request
     ) {
         return ResponseEntity.ok(authenticationService.authenticate(request));
     }
+
     @PostMapping("/password")
     public void changePassword(@RequestBody ChangePasswordRequest changePasswordRequest, Principal connectedUser) {
         authenticationService.changePassword(changePasswordRequest, connectedUser);
     }
+
     @GetMapping("/logout")
     public void logout() {
         SecurityContextHolder.clearContext();
     }
+
     @GetMapping("/shopsByLocationService")
-    private ResponseEntity<?> getByLocationService(@RequestParam String location, @RequestParam String service){
+    private ResponseEntity<?> getByLocationService(@RequestParam String location, @RequestParam String service) {
         return new ResponseEntity<>(shopService.searchByLocationAndService(location, service), HttpStatus.OK);
     }
+
     @GetMapping("/searchShopById")
-    private  ResponseEntity<?> getShopById(@RequestParam Long id){
+    private ResponseEntity<?> getShopById(@RequestParam Long id) {
         return new ResponseEntity<>(shopService.searchShopById(id), HttpStatus.OK);
     }
 

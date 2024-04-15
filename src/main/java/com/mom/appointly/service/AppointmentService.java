@@ -22,6 +22,7 @@ public class AppointmentService {
         UserEntity userEntity = userRepo.findByEmail(userEmail)
                 .orElseThrow(() -> new NoSuchElementException("User not found"));
         Optional<Shop> shop = shopRepo.findByName(shopName);
+
         if (shop.isPresent()) {
             Optional<CustomerData> customerData = customerDataRepo.findByUserEntityAndShop(userEntity, shop.get());
             // check if the user already have make an appointment in this shop to add it to the list
@@ -30,13 +31,15 @@ public class AppointmentService {
                 appointment.setCustomerData(customerData.get());
                 appointmentRepo.save(appointment);
                 customerData.get().getAppointments().add(appointment);
+                System.out.println("Not fail");
                 return customerDataRepo.save(customerData.get());
             } else if (canMakeAppointment(shop.get(), appointment)) { // if is the first appointment of the user
                 List<Appointment> appointments = new ArrayList<>();
                 appointments.add(appointment);
-                CustomerData customer = customerDataRepo.save(new CustomerData(1L, userEntity, shop.get(), appointments));
+                CustomerData customer = customerDataRepo.save(new CustomerData(null, userEntity, shop.get(), appointments));
                 appointment.setCustomerData(customer);
                 appointmentRepo.save(appointment);
+                System.out.println("Fail");
                 return customer;
             } else {
                 throw new RuntimeException("Appointment already exist"); // it means the appointment is already exist and returns 403 forbidden
@@ -44,6 +47,7 @@ public class AppointmentService {
         } else {
             throw new RuntimeException("Shop doesn't exist");
         }
+
     }
 
     public Appointment editAppointment(Appointment appointment) {

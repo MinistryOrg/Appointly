@@ -34,7 +34,7 @@ public class ShopService {
             adminDataRepo.save(adminData.get());
         } else { // if is the first shop that the admin create, add a new AdminData to the database
             List<Shop> shops = new ArrayList<>();
-            AdminData newAdminData = new AdminData(1L, userEntity, shops);
+            AdminData newAdminData = new AdminData(null, userEntity, shops);
             shop.setAdminData(newAdminData);
             shopRepo.save(shop);
             shops.add(shop);
@@ -107,8 +107,6 @@ public class ShopService {
     }
 
     public void canMakeChanges(UserEntity userEntity) {
-        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        UserEntity connectedUser = userRepo.findByEmail(userEmail).orElseThrow();
         // if the user doesn't own the change he wants to make or is not the admin throws exception
         if (userEntity.getRole().equals(Role.USER)) {
             throw new RuntimeException("You don't have the permissions");
@@ -120,4 +118,5 @@ public class ShopService {
             throw new RuntimeException("Name already exist");
         }
     }
+
 }
